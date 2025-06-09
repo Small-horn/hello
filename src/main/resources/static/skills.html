@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技能展示 - 个人作品集</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="images/avatar.jpg" alt="个人头像">
+            </div>
+            <h3 class="name">戴永辉</h3>
+            <p class="profession">嵌入式软件工程师</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> 首页</a></li>
+            <li><a href="about.html"><i class="fas fa-user"></i> 个人简介</a></li>
+            <li><a href="experience.html"><i class="fas fa-briefcase"></i> 工作经历</a></li>
+            <li><a href="skills.html" class="active"><i class="fas fa-code"></i> 技能展示</a></li>
+            <li><a href="portfolio.html"><i class="fas fa-project-diagram"></i> 作品集</a></li>
+            <li><a href="contact.html"><i class="fas fa-envelope"></i> 联系方式</a></li>
+        </ul>
+        <div class="social-links">
+            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 侧边栏导航按钮 -->
+    <button id="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 主要内容区域 -->
+    <main id="content">
+        <!-- 技能展示部分 -->
+        <section id="skills" class="section">
+            <h2 class="section-title">技能展示</h2>
+            <div class="skills-container">
+                <div class="skills-category">
+                    <h3>前端技术</h3>
+                    <div class="skill-item">
+                        <span class="skill-name">HTML/CSS</span>
+                        <div class="skill-bar">
+                            <div class="skill-level" style="width: 90%"></div>
+                        </div>
+                        <span class="skill-percentage">90%</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-name">JavaScript</span>
+                        <div class="skill-bar">
+                            <div class="skill-level" style="width: 85%"></div>
+                        </div>
+                        <span class="skill-percentage">85%</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-name">React</span>
+                        <div class="skill-bar">
+                            <div class="skill-level" style="width: 80%"></div>
+                        </div>
+                        <span class="skill-percentage">80%</span>
+                    </div>
+                </div>
+                <div class="skills-category">
+                    <h3>其他技能</h3>
+                    <div class="skill-item">
+                        <span class="skill-name">UI/UX设计</span>
+                        <div class="skill-bar">
+                            <div class="skill-level" style="width: 75%"></div>
+                        </div>
+                        <span class="skill-percentage">75%</span>
+                    </div>
+                    <div class="skill-item">
+                        <span class="skill-name">项目管理</span>
+                        <div class="skill-bar">
+                            <div class="skill-level" style="width: 70%"></div>
+                        </div>
+                        <span class="skill-percentage">70%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚部分 -->
+        <footer>
+            <p>&copy; 2025 戴永辉. 保留所有权利.</p>
+        </footer>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html> 
