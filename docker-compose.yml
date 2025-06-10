@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: hello-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hello_db
+      MYSQL_USER: hello_user
+      MYSQL_PASSWORD: hello_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/database-setup.sql:/docker-entrypoint-initdb.d/database-setup.sql
+    networks:
+      - hello-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Spring Boot 应用服务
+  app:
+    build: .
+    container_name: hello-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # 数据库连接配置
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hello_db?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true&useUnicode=true
+      SPRING_DATASOURCE_USERNAME: hello_user
+      SPRING_DATASOURCE_PASSWORD: hello_password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      
+      # JPA配置
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: true
+      
+      # 服务器配置
+      SERVER_PORT: 8080
+      
+      # 应用名称
+      SPRING_APPLICATION_NAME: hello
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - hello-network
+
+volumes:
+  mysql_data:
+
+networks:
+  hello-network:
+    driver: bridge
