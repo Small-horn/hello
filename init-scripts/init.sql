@@ -1,7 +1,3 @@
--- 设置字符编码
-SET NAMES utf8mb4;
-SET CHARACTER SET utf8mb4;
-
 -- 创建数据库（如果不存在）
 CREATE DATABASE IF NOT EXISTS hello_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
