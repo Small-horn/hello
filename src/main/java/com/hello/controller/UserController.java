@@ -17,7 +17,6 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // 允许跨域请求
 public class UserController {
     
     @Autowired
