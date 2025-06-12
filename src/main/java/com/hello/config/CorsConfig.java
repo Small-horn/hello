@@ -24,7 +24,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Value("${cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}")
     private String allowedMethods;
 
-    @Value("${cors.allowed-headers:*}")
+    @Value("${cors.allowed-headers:Content-Type,Authorization,X-Requested-With}")
     private String allowedHeaders;
 
     @Value("${cors.allow-credentials:true}")
@@ -37,11 +37,12 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         List<String> methods = Arrays.asList(allowedMethods.split(","));
+        List<String> headers = Arrays.asList(allowedHeaders.split(","));
 
         registry.addMapping("/**")
                 .allowedOriginPatterns(origins.toArray(new String[0]))
                 .allowedMethods(methods.toArray(new String[0]))
-                .allowedHeaders(allowedHeaders.equals("*") ? new String[]{"*"} : allowedHeaders.split(","))
+                .allowedHeaders(headers.toArray(new String[0]))
                 .allowCredentials(allowCredentials)
                 .maxAge(maxAge);
     }
@@ -52,16 +53,11 @@ public class CorsConfig implements WebMvcConfigurer {
 
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         List<String> methods = Arrays.asList(allowedMethods.split(","));
+        List<String> headers = Arrays.asList(allowedHeaders.split(","));
 
         configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(methods);
-
-        if (allowedHeaders.equals("*")) {
-            configuration.addAllowedHeader("*");
-        } else {
-            configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
-        }
-
+        configuration.setAllowedHeaders(headers);
         configuration.setAllowCredentials(allowCredentials);
         configuration.setMaxAge(maxAge);
 
