@@ -37,11 +37,11 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         List<String> methods = Arrays.asList(allowedMethods.split(","));
-        
+
         registry.addMapping("/**")
                 .allowedOriginPatterns(origins.toArray(new String[0]))
                 .allowedMethods(methods.toArray(new String[0]))
-                .allowedHeaders(allowedHeaders.equals("*") ? "*" : allowedHeaders.split(","))
+                .allowedHeaders(allowedHeaders.equals("*") ? new String[]{"*"} : allowedHeaders.split(","))
                 .allowCredentials(allowCredentials)
                 .maxAge(maxAge);
     }
@@ -49,19 +49,19 @@ public class CorsConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         List<String> methods = Arrays.asList(allowedMethods.split(","));
-        
+
         configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(methods);
-        
+
         if (allowedHeaders.equals("*")) {
             configuration.addAllowedHeader("*");
         } else {
             configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
         }
-        
+
         configuration.setAllowCredentials(allowCredentials);
         configuration.setMaxAge(maxAge);
 
