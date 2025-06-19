@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告管理 - 戴永辉</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入富文本编辑器 -->
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css">
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="images/avatar.jpg" alt="个人头像">
+            </div>
+            <h3 class="name">戴永辉</h3>
+            <p class="profession">嵌入式软件工程师</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="announcements.html"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
+            <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
+            <li><a href="announcement-management.html" class="active"><i class="fas fa-cogs"></i> 公告管理</a></li>
+            <li><a href="user-management.html"><i class="fas fa-users"></i> 用户管理</a></li>
+        </ul>
+        <div class="social-links">
+            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 侧边栏导航按钮 -->
+    <button id="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 主要内容区域 -->
+    <main id="content">
+        <!-- 页面标题 -->
+        <div class="management-header">
+            <h1 class="page-title">
+                <i class="fas fa-cogs"></i>
+                公告管理
+            </h1>
+            <p class="page-description">添加、编辑和管理校园公告与活动信息</p>
+        </div>
+
+        <!-- 消息显示区域 -->
+        <div id="message-container"></div>
+
+        <!-- 操作按钮区域 -->
+        <div class="action-bar">
+            <button id="add-announcement-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                新建公告
+            </button>
+            <button id="add-activity-btn" class="btn btn-success">
+                <i class="fas fa-calendar-plus"></i>
+                新建活动
+            </button>
+            <button id="refresh-btn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+                刷新
+            </button>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="management-filter">
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="status-filter">状态筛选：</label>
+                    <select id="status-filter" class="filter-select">
+                        <option value="">全部状态</option>
+                        <option value="DRAFT">草稿</option>
+                        <option value="PUBLISHED">已发布</option>
+                        <option value="EXPIRED">已过期</option>
+                        <option value="CANCELLED">已取消</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="type-filter">类型筛选：</label>
+                    <select id="type-filter" class="filter-select">
+                        <option value="">全部类型</option>
+                        <option value="ANNOUNCEMENT">公告</option>
+                        <option value="ACTIVITY">活动</option>
+                    </select>
+                </div>
+                
+                <div class="search-group">
+                    <input type="text" id="search-input" placeholder="搜索标题..." class="search-input">
+                    <button id="search-btn" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 公告列表 -->
+        <div class="management-list">
+            <!-- 加载状态 -->
+            <div id="loading" class="loading-container" style="display: none;">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>加载中...</span>
+                </div>
+            </div>
+            
+            <!-- 公告表格 -->
+            <div class="table-container">
+                <table id="announcements-table" class="management-table">
+                    <thead>
+                        <tr>
+                            <th>标题</th>
+                            <th>类型</th>
+                            <th>状态</th>
+                            <th>发布者</th>
+                            <th>发布时间</th>
+                            <th>浏览量</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="announcements-tbody">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分页控件 -->
+            <div id="pagination" class="pagination-container">
+                <!-- 分页按钮将通过JavaScript动态生成 -->
+            </div>
+            
+            <!-- 空状态 -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>暂无数据</h3>
+                <p>还没有创建任何公告或活动</p>
+                <button class="btn btn-primary" onclick="showAnnouncementModal()">
+                    <i class="fas fa-plus"></i>
+                    创建第一个公告
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 公告编辑模态框 -->
+    <div id="announcement-modal" class="modal" style="display: none;">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="modal-title">新建公告</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="announcement-form">
+                    <input type="hidden" id="announcement-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="announcement-title">标题 *</label>
+                            <input type="text" id="announcement-title" name="title" required maxlength="200">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="announcement-type">类型 *</label>
+                            <select id="announcement-type" name="type" required>
+                                <option value="">请选择类型</option>
+                                <option value="ANNOUNCEMENT">公告</option>
+                                <option value="ACTIVITY">活动</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="announcement-publisher">发布者</label>
+                            <input type="text" id="announcement-publisher" name="publisher" maxlength="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="announcement-status">状态</label>
+                            <select id="announcement-status" name="status">
+                                <option value="DRAFT">草稿</option>
+                                <option value="PUBLISHED">发布</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="publish-time">发布时间</label>
+                            <input type="datetime-local" id="publish-time" name="publishTime">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="deadline-time">截止时间</label>
+                            <input type="datetime-local" id="deadline-time" name="deadlineTime">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="announcement-summary">摘要</label>
+                        <textarea id="announcement-summary" name="summary" rows="3" maxlength="500" placeholder="简要描述公告内容（可选，系统会自动生成）"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="is-important" name="isImportant">
+                            标记为重要公告
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="announcement-content">内容 *</label>
+                        <div id="editor-container" style="height: 300px;"></div>
+                        <textarea id="announcement-content" name="content" style="display: none;" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">取消</button>
+                <button type="button" id="save-draft-btn" class="btn btn-outline">保存草稿</button>
+                <button type="submit" form="announcement-form" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="delete-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这个公告吗？此操作不可撤销。</p>
+                <p><strong id="delete-title"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button type="button" id="confirm-delete-btn" class="btn btn-danger">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/announcement-management.js"></script>
+</body>
+</html>

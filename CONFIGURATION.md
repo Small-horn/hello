@@ -48,7 +48,7 @@ cp .env.example .env
 | 应用名称 | APP_NAME | hello | 应用程序名称 |
 | 数据库主机 | DB_HOST | localhost | 数据库服务器地址 |
 | 数据库端口 | DB_PORT | 3306 | 数据库端口 |
-| 数据库名称 | DB_NAME | hello_db | 数据库名称 |
+| 数据库名称 | DB_NAME | hello_db_dev_dev | 数据库名称 |
 | 数据库用户名 | DB_USERNAME | root | 数据库用户名 |
 | 数据库密码 | DB_PASSWORD | root | 数据库密码 |
 | 数据库驱动 | DB_DRIVER | com.mysql.cj.jdbc.Driver | JDBC 驱动类 |

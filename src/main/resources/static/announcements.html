@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园公告 - 戴永辉</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="images/avatar.jpg" alt="个人头像">
+            </div>
+            <h3 class="name">戴永辉</h3>
+            <p class="profession">嵌入式软件工程师</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="announcements.html" class="active"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
+            <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
+            <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
+            <li><a href="user-management.html"><i class="fas fa-users"></i> 用户管理</a></li>
+        </ul>
+        <div class="social-links">
+            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 侧边栏导航按钮 -->
+    <button id="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 主要内容区域 -->
+    <main id="content">
+        <!-- 页面标题和筛选区域 -->
+        <div class="announcements-header">
+            <h1 class="page-title">
+                <i class="fas fa-bullhorn"></i>
+                <span id="page-title-text">校园公告</span>
+            </h1>
+            <p class="page-description">查看最新的校园公告和活动信息</p>
+            
+            <!-- 筛选和搜索区域 -->
+            <div class="filter-section">
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="type-filter">类型筛选：</label>
+                        <select id="type-filter" class="filter-select">
+                            <option value="">全部</option>
+                            <option value="ANNOUNCEMENT">公告</option>
+                            <option value="ACTIVITY">活动</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="importance-filter">重要性：</label>
+                        <select id="importance-filter" class="filter-select">
+                            <option value="">全部</option>
+                            <option value="true">重要</option>
+                            <option value="false">普通</option>
+                        </select>
+                    </div>
+                    
+                    <div class="search-group">
+                        <input type="text" id="search-input" placeholder="搜索公告标题或内容..." class="search-input">
+                        <button id="search-btn" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 重要公告区域 -->
+        <div id="important-section" class="important-section">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i> 重要公告
+            </h2>
+            <div id="important-announcements" class="important-announcements">
+                <!-- 重要公告将通过JavaScript动态加载 -->
+            </div>
+        </div>
+
+        <!-- 公告列表区域 -->
+        <div class="announcements-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-list"></i> 
+                    <span id="section-title-text">所有公告</span>
+                </h2>
+                <div class="sort-controls">
+                    <label for="sort-select">排序：</label>
+                    <select id="sort-select" class="sort-select">
+                        <option value="publishTime">发布时间</option>
+                        <option value="viewCount">浏览量</option>
+                        <option value="title">标题</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 加载状态 -->
+            <div id="loading" class="loading-container" style="display: none;">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>加载中...</span>
+                </div>
+            </div>
+            
+            <!-- 公告卡片容器 -->
+            <div id="announcements-container" class="announcements-grid">
+                <!-- 公告卡片将通过JavaScript动态加载 -->
+            </div>
+            
+            <!-- 分页控件 -->
+            <div id="pagination" class="pagination-container">
+                <!-- 分页按钮将通过JavaScript动态生成 -->
+            </div>
+            
+            <!-- 空状态提示 -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>暂无公告</h3>
+                <p>当前没有符合条件的公告或活动</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 引入jQuery和自定义脚本 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/announcements.js"></script>
+</body>
+</html>

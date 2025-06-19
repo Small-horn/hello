@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告详情 - 戴永辉</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="images/avatar.jpg" alt="个人头像">
+            </div>
+            <h3 class="name">戴永辉</h3>
+            <p class="profession">嵌入式软件工程师</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="announcements.html" class="active"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
+            <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
+            <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
+            <li><a href="user-management.html"><i class="fas fa-users"></i> 用户管理</a></li>
+        </ul>
+        <div class="social-links">
+            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 侧边栏导航按钮 -->
+    <button id="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 主要内容区域 -->
+    <main id="content">
+        <!-- 返回按钮 -->
+        <div class="back-navigation">
+            <button id="back-btn" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                返回列表
+            </button>
+        </div>
+
+        <!-- 加载状态 -->
+        <div id="loading" class="loading-container" style="display: none;">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>加载中...</span>
+            </div>
+        </div>
+
+        <!-- 错误状态 -->
+        <div id="error-state" class="error-state" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>加载失败</h3>
+            <p id="error-message">无法加载公告详情，请稍后重试</p>
+            <button id="retry-btn" class="btn">重试</button>
+        </div>
+
+        <!-- 公告详情内容 -->
+        <article id="announcement-detail" class="announcement-detail" style="display: none;">
+            <!-- 公告头部 -->
+            <header class="detail-header">
+                <div class="detail-meta">
+                    <span id="announcement-type" class="announcement-type"></span>
+                    <span id="important-badge" class="important-badge" style="display: none;">
+                        <i class="fas fa-star"></i> 重要
+                    </span>
+                </div>
+                <h1 id="announcement-title" class="detail-title"></h1>
+                <div class="detail-info">
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <span>发布者：</span>
+                        <span id="announcement-publisher"></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <span>发布时间：</span>
+                        <span id="announcement-publish-time"></span>
+                    </div>
+                    <div class="info-item" id="deadline-info" style="display: none;">
+                        <i class="fas fa-clock"></i>
+                        <span>截止时间：</span>
+                        <span id="announcement-deadline"></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-eye"></i>
+                        <span>浏览次数：</span>
+                        <span id="announcement-views"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 公告内容 -->
+            <section class="detail-content">
+                <div id="announcement-content" class="content-body">
+                    <!-- 公告内容将通过JavaScript动态加载 -->
+                </div>
+            </section>
+
+            <!-- 公告底部操作 -->
+            <footer class="detail-footer">
+                <div class="detail-actions">
+                    <button id="share-btn" class="action-btn">
+                        <i class="fas fa-share"></i>
+                        分享
+                    </button>
+                    <button id="print-btn" class="action-btn">
+                        <i class="fas fa-print"></i>
+                        打印
+                    </button>
+                </div>
+                <div class="detail-stats">
+                    <span class="stat-item">
+                        <i class="fas fa-calendar-plus"></i>
+                        创建时间：<span id="announcement-created"></span>
+                    </span>
+                    <span class="stat-item" id="updated-info" style="display: none;">
+                        <i class="fas fa-edit"></i>
+                        更新时间：<span id="announcement-updated"></span>
+                    </span>
+                </div>
+            </footer>
+        </article>
+
+        <!-- 相关公告推荐 -->
+        <section id="related-section" class="related-section" style="display: none;">
+            <h2 class="section-title">
+                <i class="fas fa-list"></i> 相关公告
+            </h2>
+            <div id="related-announcements" class="related-announcements">
+                <!-- 相关公告将通过JavaScript动态加载 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 分享模态框 -->
+    <div id="share-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>分享公告</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="share-options">
+                    <button class="share-option" data-type="copy">
+                        <i class="fas fa-copy"></i>
+                        复制链接
+                    </button>
+                    <button class="share-option" data-type="email">
+                        <i class="fas fa-envelope"></i>
+                        邮件分享
+                    </button>
+                </div>
+                <div class="share-link">
+                    <input type="text" id="share-url" readonly>
+                    <button id="copy-url-btn" class="copy-btn">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入jQuery和自定义脚本 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/announcement-detail.js"></script>
+</body>
+</html>

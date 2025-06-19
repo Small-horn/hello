@@ -116,8 +116,37 @@
     </style>
 </head>
 <body>
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="images/avatar.jpg" alt="个人头像">
+            </div>
+            <h3 class="name">戴永辉</h3>
+            <p class="profession">嵌入式软件工程师</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="announcements.html"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
+            <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
+            <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
+            <li><a href="user-management.html" class="active"><i class="fas fa-users"></i> 用户管理</a></li>
+        </ul>
+        <div class="social-links">
+            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 侧边栏导航按钮 -->
+    <button id="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- 主要内容 -->
-    <div class="user-management">
+    <div id="content">
+        <div class="user-management">
         <h1><i class="fas fa-users"></i> 用户管理系统</h1>
         <p>这是一个演示Spring Boot + jQuery前后端交互的用户管理系统</p>
         
