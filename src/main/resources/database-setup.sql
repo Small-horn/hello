@@ -7,22 +7,37 @@ CREATE DATABASE IF NOT EXISTS hello_db_dev CHARACTER SET utf8mb4 COLLATE utf8mb4
 -- 2. 使用数据库
 USE hello_db_dev;
 
--- 3. 创建用户表（Spring Boot会自动创建，这里仅作参考）
--- CREATE TABLE IF NOT EXISTS users (
---     id BIGINT AUTO_INCREMENT PRIMARY KEY,
---     username VARCHAR(50) NOT NULL UNIQUE,
---     email VARCHAR(100) NOT NULL UNIQUE,
---     phone VARCHAR(20) NOT NULL,
---     description TEXT,
---     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
---     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
--- );
+-- 3. 创建用户表
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    email VARCHAR(100) NOT NULL COMMENT '邮箱',
+    phone VARCHAR(20) NOT NULL COMMENT '手机号',
+    description VARCHAR(500) COMMENT '描述',
+    password VARCHAR(255) NOT NULL COMMENT '密码',
+    role ENUM('ADMIN', 'TEACHER', 'STUDENT', 'GUEST') NOT NULL DEFAULT 'GUEST' COMMENT '用户角色',
+    status ENUM('ACTIVE', 'INACTIVE', 'PENDING', 'LOCKED') NOT NULL DEFAULT 'PENDING' COMMENT '用户状态',
+    real_name VARCHAR(100) COMMENT '真实姓名',
+    student_id VARCHAR(50) COMMENT '学号/工号',
+    department VARCHAR(100) COMMENT '院系/部门',
+    last_login_time DATETIME COMMENT '最后登录时间',
+    login_count INT DEFAULT 0 COMMENT '登录次数',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    updated_at DATETIME NOT NULL COMMENT '更新时间',
+    INDEX idx_role (role),
+    INDEX idx_status (status),
+    INDEX idx_student_id (student_id),
+    INDEX idx_department (department)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
--- 4. 插入示例数据
-INSERT INTO users (username, email, phone, description, created_at, updated_at) VALUES
-('admin', 'admin@example.com', '13800138000', '系统管理员', NOW(), NOW()),
-('user1', 'user1@example.com', '13800138001', '普通用户1', NOW(), NOW()),
-('user2', 'user2@example.com', '13800138002', '普通用户2', NOW(), NOW())
+-- 4. 插入示例用户数据
+INSERT INTO users (username, email, phone, password, role, status, real_name, student_id, department, login_count, created_at, updated_at) VALUES
+('admin', 'admin@university.edu', '13800138000', '123', 'ADMIN', 'ACTIVE', '系统管理员', 'A001', '信息中心', 0, NOW(), NOW()),
+('teacher1', 'teacher1@university.edu', '13800138001', '123', 'TEACHER', 'ACTIVE', '张教授', 'T001', '计算机学院', 0, NOW(), NOW()),
+('teacher2', 'teacher2@university.edu', '13800138002', '123', 'TEACHER', 'ACTIVE', '李老师', 'T002', '数学学院', 0, NOW(), NOW()),
+('student1', 'student1@university.edu', '13800138003', '123', 'STUDENT', 'ACTIVE', '王小明', '2021001', '计算机学院', 0, NOW(), NOW()),
+('student2', 'student2@university.edu', '13800138004', '123', 'STUDENT', 'ACTIVE', '李小红', '2021002', '数学学院', 0, NOW(), NOW()),
+('guest1', 'guest1@example.com', '13800138005', '123', 'GUEST', 'ACTIVE', '访客用户', '', '', 0, NOW(), NOW())
 ON DUPLICATE KEY UPDATE username=username;
 
 -- 5. 查看表结构

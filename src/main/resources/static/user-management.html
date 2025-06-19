@@ -3,119 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户管理 - 戴永辉</title>
+    <title>用户管理 - 校园管理系统</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .user-management {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            margin-top: 100px;
-        }
-        
-        .form-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .form-group textarea {
-            height: 80px;
-            resize: vertical;
-        }
-        
-        .btn {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        
-        .btn:hover {
-            background: #0056b3;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        .users-table th, .users-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .users-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        
-        .users-table tr:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .message {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-    </style>
 </head>
-<body>
+<body class="admin-only">
     <!-- 侧边栏导航 -->
     <nav id="sidebar">
         <div class="profile-container">
@@ -126,6 +18,7 @@
             <p class="profession">嵌入式软件工程师</p>
         </div>
         <ul class="nav-links">
+            <li><a href="dashboard.html"><i class="fas fa-home"></i> 首页</a></li>
             <li><a href="announcements.html"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
             <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
             <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
@@ -144,69 +37,232 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- 主要内容 -->
-    <div id="content">
-        <div class="user-management">
-        <h1><i class="fas fa-users"></i> 用户管理系统</h1>
-        <p>这是一个演示Spring Boot + jQuery前后端交互的用户管理系统</p>
-        
+    <!-- 主要内容区域 -->
+    <main id="content">
+        <!-- 页面标题 -->
+        <div class="management-header">
+            <h1 class="page-title">
+                <i class="fas fa-users"></i>
+                用户管理
+            </h1>
+            <p class="page-description">管理系统用户、角色权限和账户状态</p>
+        </div>
+
         <!-- 消息显示区域 -->
         <div id="message-container"></div>
-        
-        <!-- 用户表单 -->
-        <div class="form-container">
-            <h2>添加/编辑用户</h2>
-            <form id="user-form">
-                <input type="hidden" id="user-id">
-                <div class="form-group">
-                    <label for="username">用户名 *</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">邮箱 *</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">手机号 *</label>
-                    <input type="tel" id="phone" name="phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">描述</label>
-                    <textarea id="description" name="description" placeholder="请输入用户描述..."></textarea>
-                </div>
-                <button type="submit" class="btn" id="submit-btn">添加用户</button>
-                <button type="button" class="btn" id="cancel-btn" onclick="resetForm()" style="display:none;">取消编辑</button>
-            </form>
+
+        <!-- 操作按钮栏 -->
+        <div class="action-bar">
+            <button id="add-user-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                新建用户
+            </button>
+            <button id="refresh-btn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+                刷新
+            </button>
+            <button id="export-btn" class="btn btn-outline">
+                <i class="fas fa-download"></i>
+                导出数据
+            </button>
         </div>
-        
-        <!-- 用户列表 -->
-        <div>
-            <h2>用户列表</h2>
-            <div id="loading" class="loading" style="display:none;">
-                <i class="fas fa-spinner fa-spin"></i> 加载中...
+
+        <!-- 筛选区域 -->
+        <div class="management-filter">
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="role-filter">角色筛选：</label>
+                    <select id="role-filter" class="filter-select">
+                        <option value="">全部角色</option>
+                        <option value="ADMIN">管理员</option>
+                        <option value="TEACHER">教师</option>
+                        <option value="STUDENT">学生</option>
+                        <option value="GUEST">游客</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="status-filter">状态筛选：</label>
+                    <select id="status-filter" class="filter-select">
+                        <option value="">全部状态</option>
+                        <option value="ACTIVE">正常</option>
+                        <option value="INACTIVE">禁用</option>
+                        <option value="PENDING">待审核</option>
+                        <option value="LOCKED">锁定</option>
+                    </select>
+                </div>
+
+                <div class="search-group">
+                    <input type="text" id="search-input" placeholder="搜索用户名、邮箱..." class="search-input">
+                    <button id="search-btn" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
             </div>
-            <table class="users-table" id="users-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>用户名</th>
-                        <th>邮箱</th>
-                        <th>手机号</th>
-                        <th>描述</th>
-                        <th>创建时间</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="users-tbody">
-                    <!-- 用户数据将通过JavaScript动态加载 -->
-                </tbody>
-            </table>
+        </div>
+
+        <!-- 用户列表 -->
+        <div class="management-list">
+            <!-- 加载状态 -->
+            <div id="loading" class="loading-container" style="display: none;">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>加载中...</span>
+                </div>
+            </div>
+
+            <!-- 用户表格 -->
+            <div class="table-container">
+                <table id="users-table" class="management-table">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>真实姓名</th>
+                            <th>角色</th>
+                            <th>状态</th>
+                            <th>邮箱</th>
+                            <th>部门</th>
+                            <th>最后登录</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页控件 -->
+            <div id="pagination" class="pagination-container">
+                <!-- 分页按钮将通过JavaScript动态生成 -->
+            </div>
+
+            <!-- 空状态 -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>暂无用户</h3>
+                <p>还没有创建任何用户</p>
+                <button class="btn btn-primary" onclick="showUserModal()">
+                    <i class="fas fa-plus"></i>
+                    创建第一个用户
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 用户编辑模态框 -->
+    <div id="user-modal" class="modal" style="display: none;">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="modal-title">新建用户</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="user-form">
+                    <input type="hidden" id="user-id">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-username">用户名 *</label>
+                            <input type="text" id="user-username" name="username" required maxlength="50">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user-email">邮箱 *</label>
+                            <input type="email" id="user-email" name="email" required maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-real-name">真实姓名</label>
+                            <input type="text" id="user-real-name" name="realName" maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user-phone">手机号 *</label>
+                            <input type="tel" id="user-phone" name="phone" required maxlength="20">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-role">用户角色 *</label>
+                            <select id="user-role" name="role" required>
+                                <option value="">请选择角色</option>
+                                <option value="ADMIN">管理员</option>
+                                <option value="TEACHER">教师</option>
+                                <option value="STUDENT">学生</option>
+                                <option value="GUEST">游客</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user-status">账户状态</label>
+                            <select id="user-status" name="status">
+                                <option value="ACTIVE">正常</option>
+                                <option value="INACTIVE">禁用</option>
+                                <option value="PENDING">待审核</option>
+                                <option value="LOCKED">锁定</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="user-student-id">学号/工号</label>
+                            <input type="text" id="user-student-id" name="studentId" maxlength="50">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user-department">院系/部门</label>
+                            <input type="text" id="user-department" name="department" maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="user-password">密码 *</label>
+                        <input type="password" id="user-password" name="password" required maxlength="255">
+                        <small class="form-text">密码长度至少6位</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="user-description">描述</label>
+                        <textarea id="user-description" name="description" rows="3" maxlength="500" placeholder="用户描述信息（可选）"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeUserModal()">取消</button>
+                <button type="submit" form="user-form" class="btn btn-primary">保存</button>
+            </div>
         </div>
     </div>
 
-    <!-- 引入jQuery -->
+    <!-- 删除确认模态框 -->
+    <div id="delete-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这个用户吗？此操作不可撤销。</p>
+                <p><strong id="delete-username"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button type="button" id="confirm-delete-btn" class="btn btn-danger">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/script.js"></script>
-    <script src="js/user-management.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/user-management-new.js"></script>
 </body>
 </html>

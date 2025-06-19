@@ -3,54 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>戴永辉 - 个人作品集</title>
+    <title>校园管理系统 - 登录</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <!-- 背景图 -->
-    <div class="home-bg"></div>
-    
-    <!-- 首页内容 -->
-    <div class="home-container">
-        <div class="home-content">
-            <h1 class="home-name">戴永辉</h1>
-            <p class="home-title">嵌入式软件工程师 | 技术爱好者 | 创新者</p>
-            <div class="home-buttons">
-                <a href="portfolio.html" class="home-btn primary">查看作品</a>
-                <a href="contact.html" class="home-btn">联系我</a>
+<body class="login-page">
+    <!-- 登录页面背景 -->
+    <div class="login-background">
+        <img src="images/bg-university.webp" alt="校园背景">
+        <div class="login-overlay"></div>
+    </div>
+
+    <!-- 登录容器 -->
+    <div class="login-container">
+        <!-- 系统标题 -->
+        <div class="login-header">
+            <div class="system-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1 class="system-title">校园管理系统</h1>
+            <p class="system-subtitle">Campus Management System</p>
+        </div>
+
+        <!-- 登录表单 -->
+        <div class="login-form-container">
+            <form id="login-form" class="login-form">
+                <div class="form-header">
+                    <h2>用户登录</h2>
+                    <p>请输入您的账号和密码</p>
+                </div>
+
+                <!-- 消息提示区域 -->
+                <div id="message-container" class="message-container"></div>
+
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i>
+                        用户名
+                    </label>
+                    <input type="text" id="username" name="username" required
+                           placeholder="请输入用户名" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        密码
+                    </label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required
+                               placeholder="请输入密码" autocomplete="current-password">
+                        <button type="button" class="password-toggle" id="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember-me" name="rememberMe">
+                        <span class="checkmark"></span>
+                        记住我
+                    </label>
+                    <a href="#" class="forgot-password">忘记密码？</a>
+                </div>
+
+                <button type="submit" class="login-btn" id="login-btn">
+                    <span class="btn-text">登录</span>
+                    <i class="fas fa-spinner fa-spin btn-loading" style="display: none;"></i>
+                </button>
+
+                <!-- 快速登录选项 -->
+                <div class="quick-login">
+                    <p>快速登录（密码都是：123）</p>
+                    <div class="quick-login-buttons">
+                        <button type="button" class="quick-btn" data-username="admin" data-password="123">
+                            <i class="fas fa-user-shield"></i>
+                            管理员
+                        </button>
+                        <button type="button" class="quick-btn" data-username="teacher1" data-password="123">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            教师
+                        </button>
+                        <button type="button" class="quick-btn" data-username="student1" data-password="123">
+                            <i class="fas fa-user-graduate"></i>
+                            学生
+                        </button>
+                        <button type="button" class="quick-btn" data-username="guest1" data-password="123">
+                            <i class="fas fa-user"></i>
+                            游客
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 系统信息 -->
+        <div class="login-footer">
+            <div class="system-info">
+                <div class="info-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>安全可靠</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>移动适配</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>7×24服务</span>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 校园管理系统. All rights reserved.</p>
+                <p>Powered by Spring Boot & jQuery</p>
             </div>
         </div>
     </div>
-    
-    <!-- 侧边栏导航按钮 -->
-    <button id="sidebar-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- 侧边栏导航 -->
-    <nav id="sidebar">
-        <div class="profile-container">
-            <div class="profile-image">
-                <img src="images/avatar.jpg" alt="个人头像">
-            </div>
-            <h3 class="name">戴永辉</h3>
-            <p class="profession">嵌入式软件工程师</p>
-        </div>
-        <ul class="nav-links">
-            <li><a href="announcements.html"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
-            <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
-            <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
-            <li><a href="user-management.html"><i class="fas fa-users"></i> 用户管理</a></li>
-        </ul>
-        <div class="social-links">
-            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
-                <i class="fab fa-github"></i>
-                <span>GitHub</span>
-            </a>
-        </div>
-    </nav>
 
-    <script src="js/script.js"></script>
+    <!-- 引入jQuery和自定义脚本 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/auth.js"></script>
 </body>
-</html> 
+</html>
