@@ -1,0 +1,135 @@
+version: '3.8'
+
+# 校园公告系统 Docker Compose 配置
+# 包含应用、数据库、反向代理服务
+
+services:
+  # ================================
+  # MySQL 数据库服务
+  # ================================
+  mysql:
+    image: mysql:8.0
+    container_name: campus-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-campus_root_2024}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-hello_db_dev}
+      MYSQL_USER: ${MYSQL_USER:-campus_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-campus_pass_2024}
+      TZ: Asia/Shanghai
+    ports:
+      - "3307:3306"  # 避免与现有服务冲突
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d:ro
+      # 修正点1：只保留此目录挂载，并修正了模式语法为 :ro,z
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro,z
+      # 修正点2：下面这一行冲突的、单独挂载文件的配置已被删除
+      # - ./src/main/resources/database-setup.sql:/docker-entrypoint-initdb.d/01-init.sql:ro:z
+    networks:
+      - campus-network
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-campus_root_2024}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ================================
+  # Spring Boot 应用服务
+  # ================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campus-app
+    restart: unless-stopped
+    environment:
+      # 数据库配置
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-hello_db_dev}
+      DB_USERNAME: ${MYSQL_USER:-campus_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-campus_pass_2024}
+      DB_USE_SSL: "false"
+      DB_TIMEZONE: Asia/Shanghai
+      
+      # 应用配置
+      APP_NAME: campus-announcement-system
+      SERVER_PORT: 8081
+      SPRING_PROFILES_ACTIVE: docker
+      
+      # JPA 配置
+      JPA_DDL_AUTO: update
+      JPA_SHOW_SQL: "false"
+      JPA_FORMAT_SQL: "false"
+      
+      # 日志配置
+      LOG_LEVEL_ROOT: INFO
+      LOG_LEVEL_APP: INFO
+      
+      # JVM 配置
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC"
+    ports:
+      - "8081:8081"
+    volumes:
+      - app_logs:/app/logs
+    networks:
+      - campus-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  # ================================
+  # Nginx 反向代理服务
+  # ================================
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: campus-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro,z
+      - nginx_logs:/var/log/nginx
+    networks:
+      - campus-network
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ================================
+# 网络配置
+# ================================
+networks:
+  campus-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ================================
+# 数据卷配置
+# ================================
+volumes:
+  mysql_data:
+    driver: local
+  app_logs:
+    driver: local
+  nginx_logs:
+    driver: local
