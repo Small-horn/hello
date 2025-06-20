@@ -17,6 +17,9 @@ services:
       MYSQL_USER: ${MYSQL_USER:-campus_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-campus_pass_2024}
       TZ: Asia/Shanghai
+      # 编码配置
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     ports:
       - "3307:3306"  # 避免与现有服务冲突
     volumes:

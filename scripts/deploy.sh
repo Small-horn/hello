@@ -245,8 +245,44 @@ health_check() {
     else
         log_warning "Nginx 服务检查失败"
     fi
-    
+
+    # 编码检查
+    log_info "检查编码配置..."
+    if curl -s http://localhost:8081/api/encoding-test/basic > /dev/null 2>&1; then
+        response=$(curl -s http://localhost:8081/api/encoding-test/basic)
+        if echo "$response" | grep -q "校园管理系统"; then
+            log_success "编码配置正常"
+        else
+            log_warning "编码配置可能有问题，请运行: ./scripts/check-encoding.sh"
+        fi
+    else
+        log_warning "编码测试API暂时无法访问"
+    fi
+
     log_success "健康检查完成"
+
+    # 显示访问信息
+    echo ""
+    echo "========================================"
+    echo "           部署信息"
+    echo "========================================"
+    echo "应用访问地址:"
+    echo "  - HTTP:  http://localhost:8081"
+    echo "  - HTTPS: https://www.wsl66.top"
+    echo ""
+    echo "管理界面:"
+    echo "  - 用户管理: https://www.wsl66.top/user-management.html"
+    echo "  - 公告管理: https://www.wsl66.top/announcement-management.html"
+    echo ""
+    echo "API测试:"
+    echo "  - 健康检查: https://www.wsl66.top/actuator/health"
+    echo "  - 编码测试: https://www.wsl66.top/api/encoding-test/basic"
+    echo "  - 用户API: https://www.wsl66.top/api/users"
+    echo ""
+    echo "故障排除:"
+    echo "  - 编码检查: ./scripts/check-encoding.sh"
+    echo "  - 查看日志: docker-compose logs -f"
+    echo "  - 数据库修复: docker exec campus-mysql mysql -u root -pcampus_root_2024 < scripts/fix-encoding.sql"
 }
 
 # ================================
