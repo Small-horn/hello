@@ -68,9 +68,14 @@ services:
       # 日志配置
       LOG_LEVEL_ROOT: INFO
       LOG_LEVEL_APP: INFO
-      
+
+      # 编码配置
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
+
       # JVM 配置
-      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC"
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -Dfile.encoding=UTF-8"
     ports:
       - "8081:8081"
     volumes:

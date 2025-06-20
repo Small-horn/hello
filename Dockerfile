@@ -69,8 +69,13 @@ USER appuser
 # 暴露端口
 EXPOSE 8081
 
+# 设置编码环境变量
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
+
 # 设置 JVM 参数
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:G1HeapRegionSize=16m -XX:+UseStringDeduplication -XX:+OptimizeStringConcat -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=docker"
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:G1HeapRegionSize=16m -XX:+UseStringDeduplication -XX:+OptimizeStringConcat -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=docker -Dfile.encoding=UTF-8"
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
