@@ -7,6 +7,7 @@ $(document).ready(function() {
     let currentImportance = '';
     let currentKeyword = '';
     let currentSort = 'publishTime';
+    let currentUser = null;
     
     // 初始化页面
     init();
@@ -15,7 +16,7 @@ $(document).ready(function() {
         // 从URL参数获取类型
         const urlParams = new URLSearchParams(window.location.search);
         const typeParam = urlParams.get('type');
-        
+
         if (typeParam === 'activity') {
             currentType = 'ACTIVITY';
             $('#type-filter').val('ACTIVITY');
@@ -23,10 +24,14 @@ $(document).ready(function() {
             $('#section-title-text').text('所有活动');
             updateActiveNavigation('activity');
         }
-        
+
+        // 获取当前用户信息
+        currentUser = getCurrentUser();
+        console.log('当前用户:', currentUser);
+
         // 绑定事件
         bindEvents();
-        
+
         // 加载数据
         loadImportantAnnouncements();
         loadAnnouncements();
@@ -196,7 +201,26 @@ $(document).ready(function() {
                     <div class="announcement-footer">
                         <div class="announcement-stats">
                             <span><i class="fas fa-eye"></i> ${announcement.viewCount}</span>
+                            <span><i class="fas fa-thumbs-up"></i> ${announcement.likeCount || 0}</span>
+                            <span><i class="fas fa-comments"></i> ${announcement.commentCount || 0}</span>
+                            <span><i class="fas fa-star"></i> ${announcement.favoriteCount || 0}</span>
                             <span><i class="fas fa-user"></i> ${escapeHtml(announcement.publisher || '系统')}</span>
+                        </div>
+                        <div class="announcement-actions">
+                            <button class="action-btn like-btn" data-announcement-id="${announcement.id}" data-liked="false">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span class="like-text">点赞</span>
+                                <span class="like-count">${announcement.likeCount || 0}</span>
+                            </button>
+                            <button class="action-btn favorite-btn" data-announcement-id="${announcement.id}" data-favorited="false">
+                                <i class="fas fa-star"></i>
+                                <span class="favorite-text">收藏</span>
+                                <span class="favorite-count">${announcement.favoriteCount || 0}</span>
+                            </button>
+                            <button class="action-btn detail-btn" data-announcement-id="${announcement.id}">
+                                <i class="fas fa-eye"></i>
+                                查看详情
+                            </button>
                         </div>
                         ${deadlineHtml}
                     </div>
@@ -204,10 +228,33 @@ $(document).ready(function() {
             </div>
         `);
         
-        card.click(function() {
-            window.location.href = `announcement-detail.html?id=${announcement.id}`;
+        // 绑定卡片点击事件（排除按钮区域）
+        card.click(function(e) {
+            // 如果点击的是按钮或按钮内的元素，不触发卡片点击
+            if ($(e.target).closest('.action-btn').length === 0) {
+                window.location.href = `announcement-detail.html?id=${announcement.id}`;
+            }
         });
-        
+
+        // 绑定按钮事件
+        card.find('.like-btn').click(function(e) {
+            e.stopPropagation();
+            const announcementId = $(this).data('announcement-id');
+            toggleLike(announcementId, $(this));
+        });
+
+        card.find('.favorite-btn').click(function(e) {
+            e.stopPropagation();
+            const announcementId = $(this).data('announcement-id');
+            toggleFavorite(announcementId, $(this));
+        });
+
+        card.find('.detail-btn').click(function(e) {
+            e.stopPropagation();
+            const announcementId = $(this).data('announcement-id');
+            window.location.href = `announcement-detail.html?id=${announcementId}`;
+        });
+
         return card;
     }
     
@@ -321,5 +368,125 @@ $(document).ready(function() {
             'ACTIVITY': '活动'
         };
         return typeMap[type] || type;
+    }
+
+    // 获取当前用户信息
+    function getCurrentUser() {
+        const userStr = localStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+    }
+
+    // 点赞功能
+    function toggleLike(announcementId, button) {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/likes/announcement',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                userId: currentUser.id,
+                announcementId: announcementId
+            }),
+            success: function(data) {
+                updateLikeButton(button, data.isLiked, data.likeCount);
+                showMessage(data.isLiked ? '点赞成功' : '取消点赞', 'success');
+            },
+            error: function(xhr, status, error) {
+                console.error('点赞操作失败:', error);
+                showMessage('操作失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 收藏功能
+    function toggleFavorite(announcementId, button) {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/favorites',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                userId: currentUser.id,
+                announcementId: announcementId
+            }),
+            success: function(data) {
+                updateFavoriteButton(button, data.isFavorited, data.favoriteCount);
+                showMessage(data.isFavorited ? '收藏成功' : '取消收藏', 'success');
+            },
+            error: function(xhr, status, error) {
+                console.error('收藏操作失败:', error);
+                showMessage('操作失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 更新点赞按钮状态
+    function updateLikeButton(button, isLiked, likeCount) {
+        const likeText = button.find('.like-text');
+        const likeCountSpan = button.find('.like-count');
+
+        button.attr('data-liked', isLiked);
+        if (isLiked) {
+            button.addClass('liked');
+        } else {
+            button.removeClass('liked');
+        }
+
+        likeText.text(isLiked ? '已点赞' : '点赞');
+        likeCountSpan.text(likeCount);
+    }
+
+    // 更新收藏按钮状态
+    function updateFavoriteButton(button, isFavorited, favoriteCount) {
+        const favoriteText = button.find('.favorite-text');
+        const favoriteCountSpan = button.find('.favorite-count');
+
+        button.attr('data-favorited', isFavorited);
+        if (isFavorited) {
+            button.addClass('favorited');
+        } else {
+            button.removeClass('favorited');
+        }
+
+        favoriteText.text(isFavorited ? '已收藏' : '收藏');
+        favoriteCountSpan.text(favoriteCount);
+    }
+
+    // 显示消息提示
+    function showMessage(message, type = 'info') {
+        const messageHtml = `
+            <div class="message ${type}">
+                <i class="fas fa-${getMessageIcon(type)}"></i>
+                ${message}
+            </div>
+        `;
+
+        const messageElement = $(messageHtml);
+        $('body').append(messageElement);
+
+        // 3秒后自动消失
+        setTimeout(function() {
+            messageElement.fadeOut(function() {
+                messageElement.remove();
+            });
+        }, 3000);
+    }
+
+    function getMessageIcon(type) {
+        const iconMap = {
+            'success': 'check-circle',
+            'error': 'exclamation-circle',
+            'warning': 'exclamation-triangle',
+            'info': 'info-circle'
+        };
+        return iconMap[type] || 'info-circle';
     }
 });
