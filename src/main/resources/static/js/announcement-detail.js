@@ -31,8 +31,8 @@ $(document).ready(function() {
         currentUser = getCurrentUser();
         console.log('当前用户:', currentUser);
 
-        // 检查登录状态并显示相应提示
-        checkLoginStatus();
+        // 更新登录状态显示
+        updateLoginStatus();
 
         // 绑定事件
         bindEvents();
@@ -97,12 +97,12 @@ $(document).ready(function() {
 
         // 快速登录按钮
         $('#quick-login-btn').click(function() {
-            showQuickLoginOptions();
+            showQuickLoginModal();
         });
 
-        // 游客继续按钮
-        $('#guest-continue-btn').click(function() {
-            hideLoginPrompt();
+        // 退出登录按钮
+        $('#logout-btn').click(function() {
+            logout();
         });
 
         // 发表评论
@@ -415,9 +415,13 @@ $(document).ready(function() {
         return typeMap[type] || type;
     }
 
-    // 获取当前用户信息
+    // 获取当前用户信息 - 与主页保持一致
     function getCurrentUser() {
-        const userStr = localStorage.getItem('currentUser');
+        // 优先从sessionStorage获取，然后从localStorage获取
+        let userStr = sessionStorage.getItem('currentUser');
+        if (!userStr) {
+            userStr = localStorage.getItem('currentUser');
+        }
         return userStr ? JSON.parse(userStr) : null;
     }
 
@@ -908,99 +912,89 @@ $(document).ready(function() {
         }
     }
 
-    // 检查登录状态
-    function checkLoginStatus() {
-        if (!currentUser) {
-            showLoginPrompt();
+    // 更新用户信息显示 - 与主页保持一致
+    function updateLoginStatus() {
+        const userNameSpan = $('.current-user-name');
+        const roleSpan = $('.current-user-role');
+        const quickLoginBtn = $('#quick-login-btn');
+        const logoutBtn = $('#logout-btn');
+
+        if (currentUser) {
+            // 显示用户信息
+            userNameSpan.text(currentUser.realName || currentUser.username);
+
+            // 设置角色显示
+            const roleDisplayName = getRoleDisplayName(currentUser.role);
+            roleSpan.text(roleDisplayName)
+                   .removeClass('admin teacher student guest')
+                   .addClass(currentUser.role.toLowerCase());
+
+            // 显示退出按钮，隐藏登录按钮
+            quickLoginBtn.hide();
+            logoutBtn.show();
         } else {
-            hideLoginPrompt();
+            // 游客状态
+            userNameSpan.text('游客');
+            roleSpan.text('游客')
+                   .removeClass('admin teacher student')
+                   .addClass('guest');
+
+            // 显示登录按钮，隐藏退出按钮
+            quickLoginBtn.show();
+            logoutBtn.hide();
         }
     }
 
-    // 显示登录提示
-    function showLoginPrompt() {
-        $('#login-prompt').show();
+    // 获取角色显示名称
+    function getRoleDisplayName(role) {
+        const roleMap = {
+            'ADMIN': '管理员',
+            'TEACHER': '教师',
+            'STUDENT': '学生',
+            'GUEST': '游客'
+        };
+        return roleMap[role] || '用户';
     }
 
-    // 隐藏登录提示
-    function hideLoginPrompt() {
-        $('#login-prompt').hide();
-    }
+    // 显示快速登录模态框
+    function showQuickLoginModal() {
+        // 简单的快速登录 - 模拟登录student1用户
+        const testUser = {
+            id: 5,
+            username: 'student1',
+            realName: '张三',
+            role: 'STUDENT',
+            roleDisplayName: '学生',
+            department: '计算机学院',
+            loginCount: 1
+        };
 
-    // 显示快速登录选项
-    function showQuickLoginOptions() {
-        // 创建一个简单的登录选择模态框
-        const loginModal = $(`
-            <div class="modal" id="quick-login-modal" style="display: block;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>快速登录</h3>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="quick-login-options">
-                            <p>选择一个测试账户快速登录：</p>
-                            <div class="login-options">
-                                <button class="login-option-btn" data-user='{"id": 5, "username": "student1", "role": "STUDENT"}'>
-                                    <i class="fas fa-user-graduate"></i>
-                                    学生账户 (student1)
-                                </button>
-                                <button class="login-option-btn" data-user='{"id": 2, "username": "admin", "role": "ADMIN"}'>
-                                    <i class="fas fa-user-shield"></i>
-                                    管理员账户 (admin)
-                                </button>
-                                <button class="login-option-btn" data-user='{"id": 7, "username": "guest1", "role": "GUEST"}'>
-                                    <i class="fas fa-user"></i>
-                                    访客账户 (guest1)
-                                </button>
-                            </div>
-                            <div class="login-note">
-                                <p><small><i class="fas fa-info-circle"></i> 这是演示环境，选择任意账户即可体验功能</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `);
+        // 同时保存到localStorage和sessionStorage以保持一致性
+        localStorage.setItem('currentUser', JSON.stringify(testUser));
+        sessionStorage.setItem('currentUser', JSON.stringify(testUser));
+        currentUser = testUser;
 
-        $('body').append(loginModal);
-
-        // 绑定事件
-        loginModal.find('.modal-close').click(function() {
-            loginModal.remove();
-        });
-
-        loginModal.find('.login-option-btn').click(function() {
-            const userData = JSON.parse($(this).data('user'));
-            performQuickLogin(userData);
-            loginModal.remove();
-        });
-
-        // 点击背景关闭
-        loginModal.click(function(e) {
-            if (e.target === this) {
-                loginModal.remove();
-            }
-        });
-    }
-
-    // 执行快速登录
-    function performQuickLogin(userData) {
-        // 保存用户信息到localStorage
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        currentUser = userData;
-
-        // 隐藏登录提示
-        hideLoginPrompt();
+        updateLoginStatus();
+        showMessage('登录成功', 'success');
 
         // 重新加载用户状态
-        if (announcementData) {
+        if (announcementId) {
             loadUserStatus();
         }
+    }
 
-        // 显示登录成功消息
-        showMessage(`欢迎，${userData.username}！`, 'success');
+    // 退出登录
+    function logout() {
+        // 清除所有用户数据
+        localStorage.removeItem('currentUser');
+        sessionStorage.removeItem('currentUser');
+        currentUser = null;
 
-        console.log('快速登录成功:', userData);
+        updateLoginStatus();
+        showMessage('已退出登录', 'info');
+
+        // 重置按钮状态
+        updateLikeButton(false, announcementData ? announcementData.likeCount : 0);
+        updateFavoriteButton(false, announcementData ? announcementData.favoriteCount : 0);
     }
 });
