@@ -21,40 +21,80 @@ $(document).ready(function() {
     function bindEvents() {
         // 登录表单提交
         $('#login-form').submit(handleLogin);
-        
+
         // 快速登录按钮
         $('.quick-btn').click(handleQuickLogin);
-        
-        // 密码显示/隐藏
-        $('#password-toggle').click(togglePasswordVisibility);
-        
+
+        // 密码显示/隐藏 - 使用事件委托确保绑定成功
+        $(document).on('click', '#password-toggle', togglePasswordVisibility);
+
         // 回车键登录
         $('#username, #password').keypress(function(e) {
             if (e.which === 13 && !isLoggingIn) {
                 $('#login-form').submit();
             }
         });
-        
+
         // 忘记密码
         $('.forgot-password').click(function(e) {
             e.preventDefault();
             showMessage('请联系系统管理员重置密码', 'info');
         });
     }
-    
+
     function initPasswordToggle() {
-        $('#password-toggle').click(function() {
+        // 等待DOM完全加载
+        setTimeout(function() {
             const passwordInput = $('#password');
-            const icon = $(this).find('i');
-            
-            if (passwordInput.attr('type') === 'password') {
-                passwordInput.attr('type', 'text');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            } else {
-                passwordInput.attr('type', 'password');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            const toggleBtn = $('#password-toggle');
+
+            console.log('初始化密码切换功能...');
+            console.log('密码输入框数量:', passwordInput.length);
+            console.log('切换按钮数量:', toggleBtn.length);
+
+            // 确保密码切换按钮存在
+            if (toggleBtn.length === 0) {
+                console.warn('密码切换按钮未找到');
+                return;
             }
-        });
+
+            if (passwordInput.length === 0) {
+                console.warn('密码输入框未找到');
+                return;
+            }
+
+            // 清理可能的重复图标
+            const existingIcons = toggleBtn.find('i');
+            if (existingIcons.length > 1) {
+                console.log('发现重复图标，清理中...');
+                existingIcons.slice(1).remove(); // 保留第一个，删除其余的
+            }
+
+            // 确保只有一个图标
+            let icon = toggleBtn.find('i').first();
+            if (icon.length === 0) {
+                // 如果没有图标，创建一个
+                icon = $('<i class="fas fa-eye" id="password-toggle-icon"></i>');
+                toggleBtn.append(icon);
+                console.log('创建了新的密码切换图标');
+            }
+
+            // 确保初始状态正确
+            passwordInput.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            toggleBtn.attr('title', '显示密码');
+
+            console.log('密码切换功能已初始化');
+            console.log('最终图标数量:', toggleBtn.find('i').length);
+            console.log('初始图标类:', icon.attr('class'));
+
+            // 手动绑定点击事件作为备用
+            toggleBtn.off('click.passwordToggle').on('click.passwordToggle', function(e) {
+                console.log('备用密码切换事件被触发');
+                togglePasswordVisibility(e);
+            });
+
+        }, 100); // 延迟100ms确保DOM加载完成
     }
     
     function handleLogin(e) {
@@ -224,21 +264,43 @@ $(document).ready(function() {
         return iconMap[type] || 'info-circle';
     }
     
-    function togglePasswordVisibility() {
+    function togglePasswordVisibility(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
         const passwordInput = $('#password');
-        const icon = $('#password-toggle i');
-        
+        const toggleBtn = $('#password-toggle');
+
+        // 确保只操作第一个图标
+        const icon = toggleBtn.find('i').first();
+
+        console.log('密码切换按钮被点击');
+        console.log('当前密码输入框类型:', passwordInput.attr('type'));
+        console.log('图标数量:', toggleBtn.find('i').length);
+
         if (passwordInput.attr('type') === 'password') {
+            // 显示密码
             passwordInput.attr('type', 'text');
             icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            toggleBtn.attr('title', '隐藏密码');
+            console.log('密码已显示');
         } else {
+            // 隐藏密码
             passwordInput.attr('type', 'password');
             icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            toggleBtn.attr('title', '显示密码');
+            console.log('密码已隐藏');
         }
     }
     
     // 全局认证工具函数
     window.AuthUtils = {
+        // 初始化函数
+        init: function() {
+            console.log('AuthUtils.init() 被调用');
+            initPasswordToggle();
+        },
+
         // 获取当前用户
         getCurrentUser: function() {
             const userStr = sessionStorage.getItem('currentUser');

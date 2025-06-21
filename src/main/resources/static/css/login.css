@@ -176,6 +176,20 @@
 .password-input input {
     flex: 1;
     padding-right: 3rem;
+    /* 禁用浏览器自动添加的密码显示按钮 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* 禁用Edge浏览器的密码显示按钮 */
+.password-input input::-ms-reveal {
+    display: none;
+}
+
+/* 禁用IE的密码显示按钮 */
+.password-input input::-ms-clear {
+    display: none;
 }
 
 .password-toggle {
@@ -187,10 +201,23 @@
     cursor: pointer;
     padding: 0.5rem;
     transition: color 0.3s ease;
+    z-index: 10;
+    /* 确保按钮在最上层 */
 }
 
 .password-toggle:hover {
     color: var(--primary-color);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* 确保图标样式正确 */
+.password-toggle i {
+    font-size: 1rem;
+    pointer-events: none;
 }
 
 /* 表单选项优化 */
