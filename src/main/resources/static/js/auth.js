@@ -131,7 +131,7 @@ $(document).ready(function() {
                     // 延迟跳转到主页面
                     setTimeout(function() {
                         window.location.href = 'dashboard.html';
-                    }, 1500);
+                    }, 1200);
                 } else {
                     showMessage(response.message || '登录失败', 'error');
                 }
@@ -277,18 +277,60 @@ $(document).ready(function() {
         },
         
         // 注销
-        logout: function() {
+        logout: function(showConfirm = true) {
+            // 如果需要显示确认对话框
+            if (showConfirm) {
+                if (!confirm('确定要注销登录吗？')) {
+                    return;
+                }
+            }
+
+            // 显示注销中状态
+            const logoutBtn = $('.logout-btn');
+            const originalText = logoutBtn.html();
+            logoutBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 注销中...');
+
             $.ajax({
                 url: '/api/auth/logout',
                 method: 'POST',
-                success: function() {
+                timeout: 10000, // 10秒超时
+                success: function(response) {
+                    // 清除本地存储
                     sessionStorage.removeItem('currentUser');
-                    window.location.href = 'index.html';
+                    localStorage.removeItem('rememberedUsername');
+
+                    // 显示成功消息
+                    if (typeof showMessage === 'function') {
+                        showMessage('注销成功，正在跳转...', 'success');
+                    }
+
+                    // 延迟跳转，让用户看到成功消息
+                    setTimeout(function() {
+                        window.location.href = 'index.html';
+                    }, 1000);
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.warn('注销API调用失败，但仍将清除本地数据:', error);
+
                     // 即使注销失败也清除本地数据并跳转
                     sessionStorage.removeItem('currentUser');
-                    window.location.href = 'index.html';
+                    localStorage.removeItem('rememberedUsername');
+
+                    // 显示警告消息
+                    if (typeof showMessage === 'function') {
+                        showMessage('注销完成，正在跳转...', 'warning');
+                    }
+
+                    // 延迟跳转
+                    setTimeout(function() {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                },
+                complete: function() {
+                    // 恢复按钮状态（如果还在当前页面）
+                    if (logoutBtn.length) {
+                        logoutBtn.prop('disabled', false).html(originalText);
+                    }
                 }
             });
         },

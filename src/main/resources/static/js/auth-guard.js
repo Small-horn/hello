@@ -146,9 +146,13 @@ $(document).ready(function() {
     function addLogoutButton(sidebar, user) {
         // 检查是否已存在注销按钮
         if (sidebar.find('.logout-section').length > 0) {
+            // 更新用户信息
+            const userInfo = sidebar.find('.user-info');
+            userInfo.find('.user-name').text(user.realName || user.username);
+            userInfo.find('.user-role').text(user.roleDisplayName);
             return;
         }
-        
+
         const logoutSection = $(`
             <div class="logout-section">
                 <div class="user-info">
@@ -160,14 +164,59 @@ $(document).ready(function() {
                         <div class="user-role">${user.roleDisplayName}</div>
                     </div>
                 </div>
-                <button class="logout-btn" onclick="AuthUtils.logout()">
+                <button class="logout-btn" id="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
                     注销
                 </button>
             </div>
         `);
-        
+
         sidebar.append(logoutSection);
+
+        // 绑定注销按钮事件
+        sidebar.find('#logout-btn').click(function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
+
+    function handleLogout() {
+        // 显示确认对话框
+        if (confirm('确定要注销登录吗？注销后将返回登录页面。')) {
+            // 调用注销功能
+            if (typeof AuthUtils !== 'undefined' && AuthUtils.logout) {
+                AuthUtils.logout(false); // 不再显示确认对话框，因为已经确认过了
+            } else {
+                // 备用注销方法
+                fallbackLogout();
+            }
+        }
+    }
+
+    function fallbackLogout() {
+        // 备用注销方法
+        const logoutBtn = $('#logout-btn');
+        const originalHtml = logoutBtn.html();
+
+        // 显示加载状态
+        logoutBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 注销中...');
+
+        // 清除本地数据
+        sessionStorage.removeItem('currentUser');
+        localStorage.removeItem('rememberedUsername');
+
+        // 尝试调用后端注销API
+        $.ajax({
+            url: '/api/auth/logout',
+            method: 'POST',
+            timeout: 5000,
+            complete: function() {
+                // 无论成功失败都跳转到登录页面
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 500);
+            }
+        });
     }
     
     function updateUserDisplay(user) {
@@ -225,7 +274,7 @@ $(document).ready(function() {
                     <p>您没有权限访问此页面</p>
                     <div class="access-denied-actions">
                         <button onclick="history.back()" class="btn btn-secondary">返回上页</button>
-                        <button onclick="AuthUtils.logout()" class="btn btn-primary">重新登录</button>
+                        <button onclick="handleLogout()" class="btn btn-primary">重新登录</button>
                     </div>
                 </div>
             </div>
@@ -266,4 +315,92 @@ $(document).ready(function() {
             showAccessDenied();
         }
     };
+
+    // 通用消息显示函数
+    window.showMessage = window.showMessage || function(message, type = 'info') {
+        // 移除现有消息
+        $('.global-message').remove();
+
+        // 创建消息元素
+        const messageEl = $(`
+            <div class="global-message message ${type}" style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                max-width: 300px;
+                padding: 1rem;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                animation: slideInRight 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            ">
+                <i class="fas ${getMessageIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+        `);
+
+        // 添加到页面
+        $('body').append(messageEl);
+
+        // 自动移除
+        setTimeout(function() {
+            messageEl.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    };
+
+    function getMessageIcon(type) {
+        switch(type) {
+            case 'success': return 'fa-check-circle';
+            case 'error': return 'fa-exclamation-circle';
+            case 'warning': return 'fa-exclamation-triangle';
+            default: return 'fa-info-circle';
+        }
+    }
+
+    // 添加消息动画样式
+    if (!$('#message-animations').length) {
+        $('head').append(`
+            <style id="message-animations">
+                @keyframes slideInRight {
+                    from {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+
+                .global-message.success {
+                    background: #d4edda;
+                    color: #155724;
+                    border: 1px solid #c3e6cb;
+                }
+
+                .global-message.error {
+                    background: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                }
+
+                .global-message.warning {
+                    background: #fff3cd;
+                    color: #856404;
+                    border: 1px solid #ffeaa7;
+                }
+
+                .global-message.info {
+                    background: #d1ecf1;
+                    color: #0c5460;
+                    border: 1px solid #bee5eb;
+                }
+            </style>
+        `);
+    }
 });
