@@ -2,10 +2,14 @@ package com.hello.service;
 
 import com.hello.entity.Comment;
 import com.hello.entity.Announcement;
+import com.hello.entity.User;
+import com.hello.dto.CommentDTO;
 import com.hello.repository.CommentRepository;
 import com.hello.repository.AnnouncementRepository;
+import com.hello.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 评论服务层
@@ -25,9 +30,12 @@ public class CommentService {
     
     @Autowired
     private CommentRepository commentRepository;
-    
+
     @Autowired
     private AnnouncementRepository announcementRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     
     /**
      * 创建评论
@@ -68,21 +76,59 @@ public class CommentService {
     /**
      * 获取公告的评论列表（分页）
      */
-    public Page<Comment> getCommentsByAnnouncementId(Long announcementId, int page, int size, String sortBy) {
+    public Page<CommentDTO> getCommentsByAnnouncementId(Long announcementId, int page, int size, String sortBy) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         if ("likes".equals(sortBy)) {
             sort = Sort.by(Sort.Direction.DESC, "likeCount").and(Sort.by(Sort.Direction.DESC, "createdAt"));
         }
-        
+
         Pageable pageable = PageRequest.of(page, size, sort);
-        return commentRepository.findTopLevelCommentsByAnnouncementId(announcementId, pageable);
+        Page<Comment> comments = commentRepository.findTopLevelCommentsByAnnouncementId(announcementId, pageable);
+
+        // 转换为CommentDTO并添加用户信息
+        List<CommentDTO> commentDTOs = comments.getContent().stream()
+                .map(this::convertToCommentDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(commentDTOs, pageable, comments.getTotalElements());
     }
     
     /**
      * 获取评论的回复列表
      */
-    public List<Comment> getRepliesByParentId(Long parentId) {
-        return commentRepository.findRepliesByParentId(parentId);
+    public List<CommentDTO> getRepliesByParentId(Long parentId) {
+        List<Comment> replies = commentRepository.findRepliesByParentId(parentId);
+        return replies.stream()
+                .map(this::convertToCommentDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 转换Comment实体为CommentDTO
+     */
+    private CommentDTO convertToCommentDTO(Comment comment) {
+        CommentDTO dto = new CommentDTO();
+        dto.setId(comment.getId());
+        dto.setAnnouncementId(comment.getAnnouncementId());
+        dto.setUserId(comment.getUserId());
+        dto.setParentId(comment.getParentId());
+        dto.setContent(comment.getContent());
+        dto.setLikeCount(comment.getLikeCount());
+        dto.setReplyCount(comment.getReplyCount());
+        dto.setIsDeleted(comment.getIsDeleted());
+        dto.setCreatedAt(comment.getCreatedAt());
+        dto.setUpdatedAt(comment.getUpdatedAt());
+
+        // 获取用户信息
+        if (comment.getUserId() != null) {
+            Optional<User> user = userRepository.findById(comment.getUserId());
+            if (user.isPresent()) {
+                dto.setUsername(user.get().getUsername());
+                dto.setRealName(user.get().getRealName());
+            }
+        }
+
+        return dto;
     }
     
     /**

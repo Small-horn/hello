@@ -1,6 +1,7 @@
 package com.hello.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 /**
@@ -41,17 +42,20 @@ public class Comment {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    // 关联映射
+    // 关联映射 - 添加JsonIgnore避免序列化时的懒加载问题
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "announcement_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Announcement announcement;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JsonIgnore
     private User user;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Comment parentComment;
     
     // 构造函数

@@ -34,6 +34,9 @@ $(document).ready(function() {
         // 更新登录状态显示
         updateLoginStatus();
 
+        // 更新评论输入框用户信息
+        updateCommentInputUser();
+
         // 绑定事件
         bindEvents();
 
@@ -643,6 +646,11 @@ $(document).ready(function() {
 
             // 加载回复
             loadReplies(comment.id);
+
+            // 加载评论点赞状态
+            if (currentUser) {
+                loadCommentLikeStatus(comment.id);
+            }
         });
 
         // 绑定评论事件
@@ -652,14 +660,15 @@ $(document).ready(function() {
     // 创建评论HTML
     function createCommentHtml(comment) {
         const timeAgo = getTimeAgo(comment.createdAt);
-        const isLiked = currentUser && comment.userLiked; // 假设后端返回用户点赞状态
+        const isLiked = false; // 将在加载后异步获取点赞状态
+        const username = comment.user?.username || comment.username || '匿名用户';
 
         return `
             <div class="comment-item" data-comment-id="${comment.id}">
                 <div class="comment-header">
                     <div class="comment-user-info">
                         <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
-                        <span class="comment-username">${escapeHtml(comment.user?.username || '匿名用户')}</span>
+                        <span class="comment-username">${escapeHtml(username)}</span>
                     </div>
                     <span class="comment-time">${timeAgo}</span>
                 </div>
@@ -669,9 +678,10 @@ $(document).ready(function() {
                         <i class="fas fa-thumbs-up"></i>
                         <span>${comment.likeCount || 0}</span>
                     </button>
-                    <button class="comment-action-btn reply-btn" data-comment-id="${comment.id}" data-username="${escapeHtml(comment.user?.username || '匿名用户')}">
+                    <button class="comment-action-btn reply-btn" data-comment-id="${comment.id}" data-username="${escapeHtml(username)}">
                         <i class="fas fa-reply"></i>
                         回复
+                        ${comment.replyCount > 0 ? `(${comment.replyCount})` : ''}
                     </button>
                 </div>
                 <div class="comment-replies" id="replies-${comment.id}">
@@ -694,6 +704,25 @@ $(document).ready(function() {
             const commentId = $(this).data('comment-id');
             const username = $(this).data('username');
             showReplyModal(commentId, username);
+        });
+    }
+
+    // 加载评论点赞状态
+    function loadCommentLikeStatus(commentId) {
+        if (!currentUser) return;
+
+        $.ajax({
+            url: `/api/likes/comment/${commentId}/status`,
+            method: 'GET',
+            data: { userId: currentUser.id },
+            success: function(data) {
+                const button = $(`.like-comment-btn[data-comment-id="${commentId}"]`);
+                button.toggleClass('liked', data.isLiked);
+                button.find('span').text(data.likeCount);
+            },
+            error: function(xhr, status, error) {
+                console.error('加载评论点赞状态失败:', error);
+            }
         });
     }
 
@@ -748,7 +777,15 @@ $(document).ready(function() {
         replies.forEach(function(reply) {
             const replyHtml = createReplyHtml(reply);
             container.append(replyHtml);
+
+            // 加载回复点赞状态
+            if (currentUser) {
+                loadCommentLikeStatus(reply.id);
+            }
         });
+
+        // 重新绑定事件
+        bindCommentEvents();
     }
 
     // 创建回复HTML
@@ -912,6 +949,26 @@ $(document).ready(function() {
         }
     }
 
+    // HTML转义函数，防止XSS攻击
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
     // 更新用户信息显示 - 与主页保持一致
     function updateLoginStatus() {
         const userNameSpan = $('.current-user-name');
@@ -975,6 +1032,7 @@ $(document).ready(function() {
         currentUser = testUser;
 
         updateLoginStatus();
+        updateCommentInputUser();
         showMessage('登录成功', 'success');
 
         // 重新加载用户状态
@@ -991,10 +1049,22 @@ $(document).ready(function() {
         currentUser = null;
 
         updateLoginStatus();
+        updateCommentInputUser();
         showMessage('已退出登录', 'info');
 
         // 重置按钮状态
         updateLikeButton(false, announcementData ? announcementData.likeCount : 0);
         updateFavoriteButton(false, announcementData ? announcementData.favoriteCount : 0);
+    }
+
+    // 更新评论输入框用户信息
+    function updateCommentInputUser() {
+        const commentUserName = $('.comment-user-name');
+
+        if (currentUser) {
+            commentUserName.text(currentUser.realName || currentUser.username);
+        } else {
+            commentUserName.text('请先登录后发表评论');
+        }
     }
 });

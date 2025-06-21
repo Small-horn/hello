@@ -1,6 +1,7 @@
 package com.hello.controller;
 
 import com.hello.entity.Comment;
+import com.hello.dto.CommentDTO;
 import com.hello.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,13 +49,13 @@ public class CommentController {
      * GET /api/comments/announcement/{announcementId}?page=0&size=10&sortBy=time
      */
     @GetMapping("/announcement/{announcementId}")
-    public ResponseEntity<Page<Comment>> getCommentsByAnnouncementId(
+    public ResponseEntity<Page<CommentDTO>> getCommentsByAnnouncementId(
             @PathVariable Long announcementId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "time") String sortBy) {
         try {
-            Page<Comment> comments = commentService.getCommentsByAnnouncementId(announcementId, page, size, sortBy);
+            Page<CommentDTO> comments = commentService.getCommentsByAnnouncementId(announcementId, page, size, sortBy);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -66,9 +67,9 @@ public class CommentController {
      * GET /api/comments/{commentId}/replies
      */
     @GetMapping("/{commentId}/replies")
-    public ResponseEntity<List<Comment>> getRepliesByParentId(@PathVariable Long commentId) {
+    public ResponseEntity<List<CommentDTO>> getRepliesByParentId(@PathVariable Long commentId) {
         try {
-            List<Comment> replies = commentService.getRepliesByParentId(commentId);
+            List<CommentDTO> replies = commentService.getRepliesByParentId(commentId);
             return ResponseEntity.ok(replies);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
