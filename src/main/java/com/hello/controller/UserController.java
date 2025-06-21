@@ -24,13 +24,48 @@ public class UserController {
     private UserService userService;
     
     /**
-     * 获取所有用户
-     * GET /api/users
+     * 获取所有用户（支持搜索和筛选）
+     * GET /api/users?keyword=xxx&role=xxx&status=xxx
      */
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) String status) {
         try {
-            List<User> users = userService.getAllUsers();
+            List<User> users;
+
+            // 如果有搜索或筛选条件，使用筛选方法
+            if ((keyword != null && !keyword.trim().isEmpty()) ||
+                (role != null && !role.trim().isEmpty()) ||
+                (status != null && !status.trim().isEmpty())) {
+
+                User.UserRole userRole = null;
+                User.UserStatus userStatus = null;
+
+                // 解析角色参数
+                if (role != null && !role.trim().isEmpty()) {
+                    try {
+                        userRole = User.UserRole.valueOf(role.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        // 忽略无效的角色参数
+                    }
+                }
+
+                // 解析状态参数
+                if (status != null && !status.trim().isEmpty()) {
+                    try {
+                        userStatus = User.UserStatus.valueOf(status.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        // 忽略无效的状态参数
+                    }
+                }
+
+                users = userService.searchUsers(keyword, userRole, userStatus);
+            } else {
+                users = userService.getAllUsers();
+            }
+
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -137,6 +172,65 @@ public class UserController {
         }
     }
     
+    /**
+     * 更新用户状态
+     * PUT /api/users/{id}/status
+     */
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Map<String, Object>> updateUserStatus(@PathVariable Long id, @RequestBody Map<String, String> statusRequest) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String statusStr = statusRequest.get("status");
+            if (statusStr == null || statusStr.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "状态参数不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            User.UserStatus newStatus;
+            try {
+                newStatus = User.UserStatus.valueOf(statusStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                response.put("success", false);
+                response.put("message", "无效的状态值: " + statusStr);
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            User updatedUser = userService.updateUserStatus(id, newStatus);
+            response.put("success", true);
+            response.put("message", "用户状态更新成功");
+            response.put("data", updatedUser);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "服务器内部错误");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 获取用户统计信息
+     * GET /api/users/statistics
+     */
+    @GetMapping("/statistics")
+    public ResponseEntity<Map<String, Object>> getUserStatistics() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Map<String, Object> statistics = userService.getUserStatistics();
+            response.put("success", true);
+            response.put("data", statistics);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "获取统计信息失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     /**
      * 检查用户名是否可用
      * GET /api/users/check-username?username=xxx

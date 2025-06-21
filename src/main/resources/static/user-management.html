@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户管理 - 校园管理系统</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/management.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-only">
@@ -51,6 +52,46 @@
         <!-- 消息显示区域 -->
         <div id="message-container"></div>
 
+        <!-- 统计卡片 -->
+        <div class="stats-cards" id="stats-cards" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="total-users">0</div>
+                    <div class="stat-label">总用户数</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="active-users">0</div>
+                    <div class="stat-label">活跃用户</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon recent">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="recent-login-users">0</div>
+                    <div class="stat-label">最近登录</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon admin">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="admin-users">0</div>
+                    <div class="stat-label">管理员</div>
+                </div>
+            </div>
+        </div>
+
         <!-- 操作按钮栏 -->
         <div class="action-bar">
             <button id="add-user-btn" class="btn btn-primary">
@@ -93,9 +134,13 @@
                 </div>
 
                 <div class="search-group">
-                    <input type="text" id="search-input" placeholder="搜索用户名、邮箱..." class="search-input">
+                    <input type="text" id="search-input" placeholder="搜索用户名、邮箱、姓名..." class="search-input">
                     <button id="search-btn" class="search-btn">
                         <i class="fas fa-search"></i>
+                    </button>
+                    <button id="clear-filters-btn" class="btn btn-outline" title="清除筛选">
+                        <i class="fas fa-times"></i>
+                        清除
                     </button>
                 </div>
             </div>
@@ -120,6 +165,7 @@
                             <th>真实姓名</th>
                             <th>角色</th>
                             <th>状态</th>
+                            <th>密码</th>
                             <th>邮箱</th>
                             <th>部门</th>
                             <th>最后登录</th>
@@ -263,6 +309,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/script.js"></script>
     <script src="js/auth-guard.js"></script>
-    <script src="js/user-management-new.js"></script>
+    <script src="js/user-management.js"></script>
 </body>
 </html>

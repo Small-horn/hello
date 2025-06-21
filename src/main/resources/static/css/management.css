@@ -107,6 +107,49 @@
     color: #721c24;
 }
 
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.locked {
+    background: #f1f3f4;
+    color: #5f6368;
+}
+
+/* 角色徽章 */
+.role-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.role-badge.admin {
+    background: #dc3545;
+    color: white;
+}
+
+.role-badge.teacher {
+    background: #28a745;
+    color: white;
+}
+
+.role-badge.student {
+    background: #007bff;
+    color: white;
+}
+
+.role-badge.guest {
+    background: #6c757d;
+    color: white;
+}
+
 /* 类型徽章 */
 .type-badge {
     padding: 0.25rem 0.5rem;
@@ -201,6 +244,41 @@
 
 .action-btn.reset:hover {
     background: #e0a800;
+}
+
+.action-btn.publish {
+    background: #28a745;
+    color: white;
+}
+
+.action-btn.publish:hover {
+    background: #1e7e34;
+}
+
+.action-btn.unpublish {
+    background: #ffc107;
+    color: #212529;
+}
+
+.action-btn.unpublish:hover {
+    background: #e0a800;
+}
+
+/* 用户信息单元格 */
+.user-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.user-info-cell strong {
+    font-weight: 600;
+    color: #333;
+}
+
+.user-info-cell small {
+    color: #6c757d;
+    font-size: 0.75rem;
 }
 
 /* 大型模态框 */
@@ -464,6 +542,64 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    background: var(--primary-color);
+}
+
+.stat-icon.active {
+    background: #28a745;
+}
+
+.stat-icon.recent {
+    background: #17a2b8;
+}
+
+.stat-icon.admin {
+    background: #dc3545;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
 }
 
 .stats-card {

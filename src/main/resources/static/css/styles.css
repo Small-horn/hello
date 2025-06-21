@@ -1262,14 +1262,6 @@ img {
     margin-bottom: 1.5rem;
 }
 
-/* 管理列表区域 */
-.management-list {
-    background: white;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-
 /* 表格样式 */
 .table-container {
     overflow-x: auto;
