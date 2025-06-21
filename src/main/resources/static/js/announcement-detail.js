@@ -661,14 +661,24 @@ $(document).ready(function() {
     function createCommentHtml(comment) {
         const timeAgo = getTimeAgo(comment.createdAt);
         const isLiked = false; // 将在加载后异步获取点赞状态
-        const username = comment.user?.username || comment.username || '匿名用户';
+
+        // 显示评论作者的用户信息
+        const commentUsername = comment.username || comment.user?.username || '匿名用户';
+        const commentRealName = comment.realName || comment.user?.realName || commentUsername;
+
+        // 判断是否是当前用户的评论
+        const isCurrentUserComment = currentUser && comment.userId === currentUser.id;
+        const displayName = isCurrentUserComment ?
+            (currentUser.realName || currentUser.username) :
+            commentRealName;
 
         return `
             <div class="comment-item" data-comment-id="${comment.id}">
                 <div class="comment-header">
                     <div class="comment-user-info">
                         <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
-                        <span class="comment-username">${escapeHtml(username)}</span>
+                        <span class="comment-username ${isCurrentUserComment ? 'current-user' : ''}">${escapeHtml(displayName)}</span>
+                        ${isCurrentUserComment ? '<span class="user-badge">我</span>' : ''}
                     </div>
                     <span class="comment-time">${timeAgo}</span>
                 </div>
@@ -678,11 +688,21 @@ $(document).ready(function() {
                         <i class="fas fa-thumbs-up"></i>
                         <span>${comment.likeCount || 0}</span>
                     </button>
-                    <button class="comment-action-btn reply-btn" data-comment-id="${comment.id}" data-username="${escapeHtml(username)}">
+                    <button class="comment-action-btn reply-btn" data-comment-id="${comment.id}" data-username="${escapeHtml(displayName)}">
                         <i class="fas fa-reply"></i>
                         回复
                         ${comment.replyCount > 0 ? `(${comment.replyCount})` : ''}
                     </button>
+                    ${isCurrentUserComment ? `
+                        <button class="comment-action-btn edit-comment-btn" data-comment-id="${comment.id}">
+                            <i class="fas fa-edit"></i>
+                            编辑
+                        </button>
+                        <button class="comment-action-btn delete-comment-btn" data-comment-id="${comment.id}">
+                            <i class="fas fa-trash"></i>
+                            删除
+                        </button>
+                    ` : ''}
                 </div>
                 <div class="comment-replies" id="replies-${comment.id}">
                     <!-- 回复将在这里加载 -->
@@ -791,14 +811,25 @@ $(document).ready(function() {
     // 创建回复HTML
     function createReplyHtml(reply) {
         const timeAgo = getTimeAgo(reply.createdAt);
-        const isLiked = currentUser && reply.userLiked;
+        const isLiked = false; // 将在加载后异步获取点赞状态
+
+        // 显示回复作者的用户信息
+        const replyUsername = reply.username || reply.user?.username || '匿名用户';
+        const replyRealName = reply.realName || reply.user?.realName || replyUsername;
+
+        // 判断是否是当前用户的回复
+        const isCurrentUserReply = currentUser && reply.userId === currentUser.id;
+        const displayName = isCurrentUserReply ?
+            (currentUser.realName || currentUser.username) :
+            replyRealName;
 
         return `
             <div class="reply-item" data-comment-id="${reply.id}">
                 <div class="comment-header">
                     <div class="comment-user-info">
                         <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
-                        <span class="comment-username">${escapeHtml(reply.user?.username || '匿名用户')}</span>
+                        <span class="comment-username ${isCurrentUserReply ? 'current-user' : ''}">${escapeHtml(displayName)}</span>
+                        ${isCurrentUserReply ? '<span class="user-badge">我</span>' : ''}
                     </div>
                     <span class="comment-time">${timeAgo}</span>
                 </div>
@@ -808,6 +839,16 @@ $(document).ready(function() {
                         <i class="fas fa-thumbs-up"></i>
                         <span>${reply.likeCount || 0}</span>
                     </button>
+                    ${isCurrentUserReply ? `
+                        <button class="comment-action-btn edit-reply-btn" data-comment-id="${reply.id}">
+                            <i class="fas fa-edit"></i>
+                            编辑
+                        </button>
+                        <button class="comment-action-btn delete-reply-btn" data-comment-id="${reply.id}">
+                            <i class="fas fa-trash"></i>
+                            删除
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -869,7 +910,13 @@ $(document).ready(function() {
         }
 
         replyToCommentId = commentId;
+
+        // 显示被回复的用户名
         $('#reply-to-user').text(username);
+
+        // 显示当前登录用户的信息（回复者）
+        const currentUserName = currentUser.realName || currentUser.username;
+        $('.reply-user-name').text(currentUserName);
 
         // 获取原评论内容
         const commentElement = $(`.comment-item[data-comment-id="${commentId}"]`);
