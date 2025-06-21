@@ -42,7 +42,16 @@ public class Announcement {
     
     @Column(name = "view_count")
     private Integer viewCount = 0;
-    
+
+    @Column(name = "like_count")
+    private Integer likeCount = 0;
+
+    @Column(name = "comment_count")
+    private Integer commentCount = 0;
+
+    @Column(name = "favorite_count")
+    private Integer favoriteCount = 0;
+
     @Column(name = "is_important")
     private Boolean isImportant = false;
     
@@ -178,11 +187,35 @@ public class Announcement {
     public Integer getViewCount() {
         return viewCount;
     }
-    
+
     public void setViewCount(Integer viewCount) {
         this.viewCount = viewCount;
     }
-    
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public Integer getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(Integer commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public Integer getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(Integer favoriteCount) {
+        this.favoriteCount = favoriteCount;
+    }
+
     public Boolean getIsImportant() {
         return isImportant;
     }
@@ -215,6 +248,36 @@ public class Announcement {
     // 业务方法
     public void incrementViewCount() {
         this.viewCount++;
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
+    }
+
+    public void incrementCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decrementCommentCount() {
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
+    }
+
+    public void incrementFavoriteCount() {
+        this.favoriteCount++;
+    }
+
+    public void decrementFavoriteCount() {
+        if (this.favoriteCount > 0) {
+            this.favoriteCount--;
+        }
     }
     
     public boolean isExpired() {

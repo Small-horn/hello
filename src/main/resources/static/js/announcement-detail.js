@@ -3,6 +3,11 @@ $(document).ready(function() {
     // 全局变量
     let announcementId = null;
     let announcementData = null;
+    let currentUser = null;
+    let commentsData = [];
+    let currentPage = 0;
+    let sortBy = 'time';
+    let replyToCommentId = null;
     
     // 初始化页面
     init();
@@ -11,15 +16,18 @@ $(document).ready(function() {
         // 从URL参数获取公告ID
         const urlParams = new URLSearchParams(window.location.search);
         announcementId = urlParams.get('id');
-        
+
         if (!announcementId) {
             showError('缺少公告ID参数');
             return;
         }
-        
+
+        // 获取当前用户信息
+        currentUser = getCurrentUser();
+
         // 绑定事件
         bindEvents();
-        
+
         // 加载公告详情
         loadAnnouncementDetail();
     }
@@ -67,6 +75,53 @@ $(document).ready(function() {
         $('#copy-url-btn').click(function() {
             copyToClipboard($('#share-url').val());
         });
+
+        // 点赞按钮
+        $('#like-btn').click(function() {
+            toggleLike();
+        });
+
+        // 收藏按钮
+        $('#favorite-btn').click(function() {
+            toggleFavorite();
+        });
+
+        // 发表评论
+        $('#submit-comment-btn').click(function() {
+            submitComment();
+        });
+
+        // 取消评论
+        $('#cancel-comment-btn').click(function() {
+            cancelComment();
+        });
+
+        // 评论排序
+        $('.sort-btn').click(function() {
+            const newSortBy = $(this).data('sort');
+            if (newSortBy !== sortBy) {
+                sortBy = newSortBy;
+                $('.sort-btn').removeClass('active');
+                $(this).addClass('active');
+                currentPage = 0;
+                loadComments();
+            }
+        });
+
+        // 加载更多评论
+        $('#load-more-comments').click(function() {
+            currentPage++;
+            loadComments(true);
+        });
+
+        // 回复相关事件
+        $('#submit-reply-btn').click(function() {
+            submitReply();
+        });
+
+        $('#cancel-reply-btn').click(function() {
+            closeReplyModal();
+        });
     }
     
     function loadAnnouncementDetail() {
@@ -113,6 +168,9 @@ $(document).ready(function() {
         $('#announcement-publisher').text(announcement.publisher || '系统');
         $('#announcement-publish-time').text(formatDateTime(announcement.publishTime));
         $('#announcement-views').text(announcement.viewCount);
+        $('#announcement-likes').text(announcement.likeCount || 0);
+        $('#announcement-comments').text(announcement.commentCount || 0);
+        $('#announcement-favorites').text(announcement.favoriteCount || 0);
         
         // 渲染截止时间
         if (announcement.deadlineTime) {
@@ -132,6 +190,17 @@ $(document).ready(function() {
         
         // 显示详情内容
         $('#announcement-detail').show();
+
+        // 加载用户状态（点赞、收藏）
+        if (currentUser) {
+            loadUserStatus();
+        }
+
+        // 加载评论
+        loadComments();
+
+        // 显示评论区域
+        $('#comments-section').show();
     }
     
     function loadRelatedAnnouncements(type) {
@@ -325,5 +394,442 @@ $(document).ready(function() {
             'ACTIVITY': '活动'
         };
         return typeMap[type] || type;
+    }
+
+    // 获取当前用户信息
+    function getCurrentUser() {
+        const userStr = localStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+    }
+
+    // 加载用户状态（点赞、收藏）
+    function loadUserStatus() {
+        if (!currentUser) return;
+
+        // 加载点赞状态
+        $.ajax({
+            url: `/api/likes/announcement/${announcementId}/status`,
+            method: 'GET',
+            data: { userId: currentUser.id },
+            success: function(data) {
+                updateLikeButton(data.isLiked, data.likeCount);
+            },
+            error: function(xhr, status, error) {
+                console.error('加载点赞状态失败:', error);
+            }
+        });
+
+        // 加载收藏状态
+        $.ajax({
+            url: '/api/favorites/status',
+            method: 'GET',
+            data: {
+                userId: currentUser.id,
+                announcementId: announcementId
+            },
+            success: function(data) {
+                updateFavoriteButton(data.isFavorited, data.favoriteCount);
+            },
+            error: function(xhr, status, error) {
+                console.error('加载收藏状态失败:', error);
+            }
+        });
+    }
+
+    // 切换点赞状态
+    function toggleLike() {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/likes/announcement',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                userId: currentUser.id,
+                announcementId: announcementId
+            }),
+            success: function(data) {
+                updateLikeButton(data.isLiked, data.likeCount);
+                showMessage(data.isLiked ? '点赞成功' : '取消点赞', 'success');
+            },
+            error: function(xhr, status, error) {
+                console.error('点赞操作失败:', error);
+                showMessage('操作失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 切换收藏状态
+    function toggleFavorite() {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/favorites',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                userId: currentUser.id,
+                announcementId: announcementId
+            }),
+            success: function(data) {
+                updateFavoriteButton(data.isFavorited, data.favoriteCount);
+                showMessage(data.isFavorited ? '收藏成功' : '取消收藏', 'success');
+            },
+            error: function(xhr, status, error) {
+                console.error('收藏操作失败:', error);
+                showMessage('操作失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 更新点赞按钮状态
+    function updateLikeButton(isLiked, likeCount) {
+        const likeBtn = $('#like-btn');
+        const likeText = likeBtn.find('.like-text');
+        const likeCountSpan = likeBtn.find('.like-count');
+
+        likeBtn.attr('data-liked', isLiked);
+        likeText.text(isLiked ? '已点赞' : '点赞');
+        likeCountSpan.text(likeCount);
+
+        // 更新头部统计
+        $('#announcement-likes').text(likeCount);
+    }
+
+    // 更新收藏按钮状态
+    function updateFavoriteButton(isFavorited, favoriteCount) {
+        const favoriteBtn = $('#favorite-btn');
+        const favoriteText = favoriteBtn.find('.favorite-text');
+        const favoriteCountSpan = favoriteBtn.find('.favorite-count');
+
+        favoriteBtn.attr('data-favorited', isFavorited);
+        favoriteText.text(isFavorited ? '已收藏' : '收藏');
+        favoriteCountSpan.text(favoriteCount);
+
+        // 更新头部统计
+        $('#announcement-favorites').text(favoriteCount);
+    }
+
+    // 加载评论列表
+    function loadComments(append = false) {
+        $.ajax({
+            url: `/api/comments/announcement/${announcementId}`,
+            method: 'GET',
+            data: {
+                page: currentPage,
+                size: 10,
+                sortBy: sortBy
+            },
+            success: function(data) {
+                if (append) {
+                    commentsData = commentsData.concat(data.content);
+                } else {
+                    commentsData = data.content;
+                }
+
+                renderComments(commentsData, append);
+                updateCommentCount(data.totalElements);
+
+                // 更新加载更多按钮
+                if (data.last) {
+                    $('.load-more-container').hide();
+                } else {
+                    $('.load-more-container').show();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('加载评论失败:', error);
+                showMessage('加载评论失败', 'error');
+            }
+        });
+    }
+
+    // 渲染评论列表
+    function renderComments(comments, append = false) {
+        const container = $('#comments-list');
+
+        if (!append) {
+            container.empty();
+        }
+
+        comments.forEach(function(comment) {
+            const commentHtml = createCommentHtml(comment);
+            container.append(commentHtml);
+
+            // 加载回复
+            loadReplies(comment.id);
+        });
+
+        // 绑定评论事件
+        bindCommentEvents();
+    }
+
+    // 创建评论HTML
+    function createCommentHtml(comment) {
+        const timeAgo = getTimeAgo(comment.createdAt);
+        const isLiked = currentUser && comment.userLiked; // 假设后端返回用户点赞状态
+
+        return `
+            <div class="comment-item" data-comment-id="${comment.id}">
+                <div class="comment-header">
+                    <div class="comment-user-info">
+                        <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
+                        <span class="comment-username">${escapeHtml(comment.user?.username || '匿名用户')}</span>
+                    </div>
+                    <span class="comment-time">${timeAgo}</span>
+                </div>
+                <div class="comment-content">${escapeHtml(comment.content)}</div>
+                <div class="comment-actions">
+                    <button class="comment-action-btn like-comment-btn ${isLiked ? 'liked' : ''}" data-comment-id="${comment.id}">
+                        <i class="fas fa-thumbs-up"></i>
+                        <span>${comment.likeCount || 0}</span>
+                    </button>
+                    <button class="comment-action-btn reply-btn" data-comment-id="${comment.id}" data-username="${escapeHtml(comment.user?.username || '匿名用户')}">
+                        <i class="fas fa-reply"></i>
+                        回复
+                    </button>
+                </div>
+                <div class="comment-replies" id="replies-${comment.id}">
+                    <!-- 回复将在这里加载 -->
+                </div>
+            </div>
+        `;
+    }
+
+    // 绑定评论相关事件
+    function bindCommentEvents() {
+        // 点赞评论
+        $('.like-comment-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            toggleCommentLike(commentId, $(this));
+        });
+
+        // 回复评论
+        $('.reply-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            const username = $(this).data('username');
+            showReplyModal(commentId, username);
+        });
+    }
+
+    // 切换评论点赞
+    function toggleCommentLike(commentId, button) {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/likes/comment',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                userId: currentUser.id,
+                commentId: commentId
+            }),
+            success: function(data) {
+                button.toggleClass('liked', data.isLiked);
+                button.find('span').text(data.likeCount);
+                showMessage(data.isLiked ? '点赞成功' : '取消点赞', 'success');
+            },
+            error: function(xhr, status, error) {
+                console.error('评论点赞失败:', error);
+                showMessage('操作失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 加载回复
+    function loadReplies(commentId) {
+        $.ajax({
+            url: `/api/comments/${commentId}/replies`,
+            method: 'GET',
+            success: function(replies) {
+                if (replies.length > 0) {
+                    renderReplies(commentId, replies);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('加载回复失败:', error);
+            }
+        });
+    }
+
+    // 渲染回复
+    function renderReplies(commentId, replies) {
+        const container = $(`#replies-${commentId}`);
+        container.empty();
+
+        replies.forEach(function(reply) {
+            const replyHtml = createReplyHtml(reply);
+            container.append(replyHtml);
+        });
+    }
+
+    // 创建回复HTML
+    function createReplyHtml(reply) {
+        const timeAgo = getTimeAgo(reply.createdAt);
+        const isLiked = currentUser && reply.userLiked;
+
+        return `
+            <div class="reply-item" data-comment-id="${reply.id}">
+                <div class="comment-header">
+                    <div class="comment-user-info">
+                        <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
+                        <span class="comment-username">${escapeHtml(reply.user?.username || '匿名用户')}</span>
+                    </div>
+                    <span class="comment-time">${timeAgo}</span>
+                </div>
+                <div class="comment-content">${escapeHtml(reply.content)}</div>
+                <div class="comment-actions">
+                    <button class="comment-action-btn like-comment-btn ${isLiked ? 'liked' : ''}" data-comment-id="${reply.id}">
+                        <i class="fas fa-thumbs-up"></i>
+                        <span>${reply.likeCount || 0}</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 发表评论
+    function submitComment() {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        const content = $('#comment-input').val().trim();
+        if (!content) {
+            showMessage('请输入评论内容', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/comments',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                announcementId: announcementId,
+                userId: currentUser.id,
+                content: content
+            }),
+            success: function(comment) {
+                $('#comment-input').val('');
+                showMessage('评论发表成功', 'success');
+
+                // 重新加载评论
+                currentPage = 0;
+                loadComments();
+
+                // 更新评论数
+                if (announcementData) {
+                    announcementData.commentCount = (announcementData.commentCount || 0) + 1;
+                    $('#announcement-comments').text(announcementData.commentCount);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('发表评论失败:', error);
+                showMessage('发表评论失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 取消评论
+    function cancelComment() {
+        $('#comment-input').val('');
+    }
+
+    // 显示回复模态框
+    function showReplyModal(commentId, username) {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        replyToCommentId = commentId;
+        $('#reply-to-user').text(username);
+
+        // 获取原评论内容
+        const commentElement = $(`.comment-item[data-comment-id="${commentId}"]`);
+        const commentContent = commentElement.find('.comment-content').text();
+        $('#original-comment-content').text(commentContent);
+
+        $('#reply-modal').show();
+        $('#reply-input').focus();
+    }
+
+    // 关闭回复模态框
+    function closeReplyModal() {
+        $('#reply-modal').hide();
+        $('#reply-input').val('');
+        replyToCommentId = null;
+    }
+
+    // 发表回复
+    function submitReply() {
+        const content = $('#reply-input').val().trim();
+        if (!content) {
+            showMessage('请输入回复内容', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/comments',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                announcementId: announcementId,
+                userId: currentUser.id,
+                content: content,
+                parentId: replyToCommentId
+            }),
+            success: function(reply) {
+                closeReplyModal();
+                showMessage('回复发表成功', 'success');
+
+                // 重新加载该评论的回复
+                loadReplies(replyToCommentId);
+
+                // 更新评论数
+                if (announcementData) {
+                    announcementData.commentCount = (announcementData.commentCount || 0) + 1;
+                    $('#announcement-comments').text(announcementData.commentCount);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('发表回复失败:', error);
+                showMessage('发表回复失败，请稍后重试', 'error');
+            }
+        });
+    }
+
+    // 更新评论数量
+    function updateCommentCount(count) {
+        $('#total-comments').text(count);
+    }
+
+    // 获取相对时间
+    function getTimeAgo(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffInSeconds = Math.floor((now - date) / 1000);
+
+        if (diffInSeconds < 60) {
+            return '刚刚';
+        } else if (diffInSeconds < 3600) {
+            return `${Math.floor(diffInSeconds / 60)}分钟前`;
+        } else if (diffInSeconds < 86400) {
+            return `${Math.floor(diffInSeconds / 3600)}小时前`;
+        } else if (diffInSeconds < 2592000) {
+            return `${Math.floor(diffInSeconds / 86400)}天前`;
+        } else {
+            return formatDate(dateString);
+        }
     }
 });

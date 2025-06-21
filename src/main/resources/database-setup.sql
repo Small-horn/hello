@@ -62,6 +62,9 @@ CREATE TABLE IF NOT EXISTS announcements (
     publisher VARCHAR(100) NULL COMMENT '发布者',
     summary VARCHAR(500) NULL COMMENT '摘要',
     view_count INT DEFAULT 0 COMMENT '浏览次数',
+    like_count INT DEFAULT 0 COMMENT '点赞数',
+    comment_count INT DEFAULT 0 COMMENT '评论数',
+    favorite_count INT DEFAULT 0 COMMENT '收藏数',
     is_important BOOLEAN DEFAULT FALSE COMMENT '是否重要',
     created_at DATETIME NOT NULL COMMENT '创建时间',
     updated_at DATETIME NOT NULL COMMENT '更新时间',
@@ -69,7 +72,9 @@ CREATE TABLE IF NOT EXISTS announcements (
     INDEX idx_status (status),
     INDEX idx_publish_time (publish_time),
     INDEX idx_deadline_time (deadline_time),
-    INDEX idx_is_important (is_important)
+    INDEX idx_is_important (is_important),
+    INDEX idx_like_count (like_count),
+    INDEX idx_comment_count (comment_count)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='公告/活动表';
 
 -- 8. 插入示例公告/活动数据
@@ -90,3 +95,135 @@ ON DUPLICATE KEY UPDATE title=title;
 
 -- 10. 查看公告/活动数据
 -- SELECT * FROM announcements ORDER BY publish_time DESC;
+
+-- ========================================
+-- 评论表结构
+-- ========================================
+
+-- 11. 创建评论表
+CREATE TABLE IF NOT EXISTS comments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    announcement_id BIGINT NOT NULL COMMENT '公告/活动ID',
+    user_id BIGINT NOT NULL COMMENT '评论用户ID',
+    parent_id BIGINT NULL COMMENT '父评论ID（用于回复）',
+    content TEXT NOT NULL COMMENT '评论内容',
+    like_count INT DEFAULT 0 COMMENT '点赞数',
+    reply_count INT DEFAULT 0 COMMENT '回复数',
+    is_deleted BOOLEAN DEFAULT FALSE COMMENT '是否已删除',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    updated_at DATETIME NOT NULL COMMENT '更新时间',
+    FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE,
+    INDEX idx_announcement_id (announcement_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_created_at (created_at),
+    INDEX idx_like_count (like_count)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论表';
+
+-- ========================================
+-- 点赞表结构
+-- ========================================
+
+-- 12. 创建点赞表
+CREATE TABLE IF NOT EXISTS likes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '点赞用户ID',
+    target_type ENUM('ANNOUNCEMENT', 'COMMENT') NOT NULL COMMENT '点赞目标类型',
+    target_id BIGINT NOT NULL COMMENT '目标ID（公告ID或评论ID）',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_target (user_id, target_type, target_id),
+    INDEX idx_target (target_type, target_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='点赞表';
+
+-- ========================================
+-- 收藏表结构
+-- ========================================
+
+-- 13. 创建收藏表
+CREATE TABLE IF NOT EXISTS favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '收藏用户ID',
+    announcement_id BIGINT NOT NULL COMMENT '公告/活动ID',
+    created_at DATETIME NOT NULL COMMENT '创建时间',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_announcement (user_id, announcement_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_announcement_id (announcement_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏表';
+
+-- ========================================
+-- 插入示例数据
+-- ========================================
+
+-- 14. 插入示例评论数据
+INSERT INTO comments (announcement_id, user_id, parent_id, content, like_count, reply_count, created_at, updated_at) VALUES
+(1, 4, NULL, '网络维护很有必要，支持信息中心的工作！', 5, 1, NOW(), NOW()),
+(1, 5, 1, '同意，稳定的网络环境对学习很重要。', 2, 0, NOW(), NOW()),
+(1, 6, NULL, '希望维护时间不要太长，影响在线学习。', 3, 0, NOW(), NOW()),
+(2, 4, NULL, '选课系统什么时候能优化一下？每次都卡得要死。', 8, 2, NOW(), NOW()),
+(2, 5, 4, '确实，希望这次能改善一下系统性能。', 4, 0, NOW(), NOW()),
+(2, 6, 4, '建议增加选课提醒功能。', 1, 0, NOW(), NOW()),
+(3, 4, NULL, '艺术节活动很丰富，准备报名参加摄影比赛！', 6, 0, NOW(), NOW()),
+(3, 5, NULL, '我想参加歌唱比赛，有一起的同学吗？', 4, 1, NOW(), NOW()),
+(3, 6, 8, '我也想参加，可以一起练习！', 2, 0, NOW(), NOW()),
+(4, 4, NULL, '图书馆寒假还开放真是太好了，可以安心复习。', 7, 0, NOW(), NOW()),
+(5, 5, NULL, '创业大赛的奖金有多少？有详细的评选标准吗？', 3, 1, NOW(), NOW()),
+(5, 6, 11, '可以去创新创业学院官网查看详细信息。', 1, 0, NOW(), NOW())
+ON DUPLICATE KEY UPDATE content=content;
+
+-- 15. 插入示例点赞数据
+INSERT INTO likes (user_id, target_type, target_id, created_at) VALUES
+-- 对公告的点赞
+(4, 'ANNOUNCEMENT', 1, NOW()),
+(5, 'ANNOUNCEMENT', 1, NOW()),
+(6, 'ANNOUNCEMENT', 1, NOW()),
+(4, 'ANNOUNCEMENT', 2, NOW()),
+(5, 'ANNOUNCEMENT', 2, NOW()),
+(4, 'ANNOUNCEMENT', 3, NOW()),
+(5, 'ANNOUNCEMENT', 3, NOW()),
+(6, 'ANNOUNCEMENT', 3, NOW()),
+(4, 'ANNOUNCEMENT', 4, NOW()),
+(5, 'ANNOUNCEMENT', 5, NOW()),
+-- 对评论的点赞
+(5, 'COMMENT', 1, NOW()),
+(6, 'COMMENT', 1, NOW()),
+(4, 'COMMENT', 2, NOW()),
+(6, 'COMMENT', 2, NOW()),
+(4, 'COMMENT', 4, NOW()),
+(5, 'COMMENT', 4, NOW()),
+(6, 'COMMENT', 4, NOW()),
+(4, 'COMMENT', 7, NOW()),
+(5, 'COMMENT', 7, NOW()),
+(6, 'COMMENT', 8, NOW())
+ON DUPLICATE KEY UPDATE created_at=created_at;
+
+-- 16. 插入示例收藏数据
+INSERT INTO favorites (user_id, announcement_id, created_at) VALUES
+(4, 1, NOW()),
+(4, 2, NOW()),
+(4, 3, NOW()),
+(5, 1, NOW()),
+(5, 3, NOW()),
+(5, 5, NOW()),
+(6, 2, NOW()),
+(6, 3, NOW()),
+(6, 4, NOW())
+ON DUPLICATE KEY UPDATE created_at=created_at;
+
+-- 17. 更新公告统计数据
+UPDATE announcements SET
+    like_count = (SELECT COUNT(*) FROM likes WHERE target_type = 'ANNOUNCEMENT' AND target_id = announcements.id),
+    comment_count = (SELECT COUNT(*) FROM comments WHERE announcement_id = announcements.id AND is_deleted = FALSE),
+    favorite_count = (SELECT COUNT(*) FROM favorites WHERE announcement_id = announcements.id);
+
+-- 18. 更新评论统计数据
+UPDATE comments SET
+    like_count = (SELECT COUNT(*) FROM likes WHERE target_type = 'COMMENT' AND target_id = comments.id),
+    reply_count = (SELECT COUNT(*) FROM comments c2 WHERE c2.parent_id = comments.id AND c2.is_deleted = FALSE);

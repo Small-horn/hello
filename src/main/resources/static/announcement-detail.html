@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>公告详情 - 戴永辉</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/announcement-detail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -18,7 +19,7 @@
             <p class="profession">嵌入式软件工程师</p>
         </div>
         <ul class="nav-links">
-            <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> 首页</a></li>
+            <li><a href="dashboard.html"><i class="fas fa-home"></i> 首页</a></li>
             <li><a href="announcements.html" class="active"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
             <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
             <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
@@ -97,6 +98,21 @@
                         <span>浏览次数：</span>
                         <span id="announcement-views"></span>
                     </div>
+                    <div class="info-item">
+                        <i class="fas fa-thumbs-up"></i>
+                        <span>点赞数：</span>
+                        <span id="announcement-likes">0</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-comments"></i>
+                        <span>评论数：</span>
+                        <span id="announcement-comments">0</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-star"></i>
+                        <span>收藏数：</span>
+                        <span id="announcement-favorites">0</span>
+                    </div>
                 </div>
             </header>
 
@@ -110,6 +126,16 @@
             <!-- 公告底部操作 -->
             <footer class="detail-footer">
                 <div class="detail-actions">
+                    <button id="like-btn" class="action-btn like-btn" data-liked="false">
+                        <i class="fas fa-thumbs-up"></i>
+                        <span class="like-text">点赞</span>
+                        <span class="like-count">0</span>
+                    </button>
+                    <button id="favorite-btn" class="action-btn favorite-btn" data-favorited="false">
+                        <i class="fas fa-star"></i>
+                        <span class="favorite-text">收藏</span>
+                        <span class="favorite-count">0</span>
+                    </button>
                     <button id="share-btn" class="action-btn">
                         <i class="fas fa-share"></i>
                         分享
@@ -131,6 +157,46 @@
                 </div>
             </footer>
         </article>
+
+        <!-- 评论区域 -->
+        <section id="comments-section" class="comments-section" style="display: none;">
+            <h2 class="section-title">
+                <i class="fas fa-comments"></i> 评论区
+                <span class="comment-count-badge">(<span id="total-comments">0</span>)</span>
+            </h2>
+
+            <!-- 评论输入框 -->
+            <div class="comment-input-container">
+                <div class="comment-input-header">
+                    <img src="images/avatar.jpg" alt="用户头像" class="comment-avatar">
+                    <span class="comment-user-name">发表评论</span>
+                </div>
+                <div class="comment-input-body">
+                    <textarea id="comment-input" placeholder="请输入您的评论..." rows="3"></textarea>
+                    <div class="comment-input-actions">
+                        <button id="submit-comment-btn" class="btn btn-primary">发表评论</button>
+                        <button id="cancel-comment-btn" class="btn btn-secondary" style="display: none;">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评论排序 -->
+            <div class="comment-sort">
+                <span>排序方式：</span>
+                <button class="sort-btn active" data-sort="time">最新</button>
+                <button class="sort-btn" data-sort="likes">最热</button>
+            </div>
+
+            <!-- 评论列表 -->
+            <div id="comments-list" class="comments-list">
+                <!-- 评论将通过JavaScript动态加载 -->
+            </div>
+
+            <!-- 加载更多评论 -->
+            <div class="load-more-container" style="display: none;">
+                <button id="load-more-comments" class="btn btn-outline">加载更多评论</button>
+            </div>
+        </section>
 
         <!-- 相关公告推荐 -->
         <section id="related-section" class="related-section" style="display: none;">
@@ -164,6 +230,32 @@
                 <div class="share-link">
                     <input type="text" id="share-url" readonly>
                     <button id="copy-url-btn" class="copy-btn">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 回复模态框 -->
+    <div id="reply-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>回复评论</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="reply-to-info">
+                    <span>回复给：</span>
+                    <span id="reply-to-user" class="reply-to-user"></span>
+                </div>
+                <div class="original-comment">
+                    <div class="original-comment-content" id="original-comment-content"></div>
+                </div>
+                <div class="reply-input-container">
+                    <textarea id="reply-input" placeholder="请输入您的回复..." rows="4"></textarea>
+                    <div class="reply-actions">
+                        <button id="submit-reply-btn" class="btn btn-primary">发表回复</button>
+                        <button id="cancel-reply-btn" class="btn btn-secondary">取消</button>
+                    </div>
                 </div>
             </div>
         </div>
