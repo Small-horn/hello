@@ -31,6 +31,9 @@ $(document).ready(function() {
         currentUser = getCurrentUser();
         console.log('当前用户:', currentUser);
 
+        // 检查登录状态并显示相应提示
+        checkLoginStatus();
+
         // 绑定事件
         bindEvents();
 
@@ -90,6 +93,16 @@ $(document).ready(function() {
         // 收藏按钮
         $('#favorite-btn').click(function() {
             toggleFavorite();
+        });
+
+        // 快速登录按钮
+        $('#quick-login-btn').click(function() {
+            showQuickLoginOptions();
+        });
+
+        // 游客继续按钮
+        $('#guest-continue-btn').click(function() {
+            hideLoginPrompt();
         });
 
         // 发表评论
@@ -893,5 +906,101 @@ $(document).ready(function() {
         } else {
             return formatDate(dateString);
         }
+    }
+
+    // 检查登录状态
+    function checkLoginStatus() {
+        if (!currentUser) {
+            showLoginPrompt();
+        } else {
+            hideLoginPrompt();
+        }
+    }
+
+    // 显示登录提示
+    function showLoginPrompt() {
+        $('#login-prompt').show();
+    }
+
+    // 隐藏登录提示
+    function hideLoginPrompt() {
+        $('#login-prompt').hide();
+    }
+
+    // 显示快速登录选项
+    function showQuickLoginOptions() {
+        // 创建一个简单的登录选择模态框
+        const loginModal = $(`
+            <div class="modal" id="quick-login-modal" style="display: block;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>快速登录</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="quick-login-options">
+                            <p>选择一个测试账户快速登录：</p>
+                            <div class="login-options">
+                                <button class="login-option-btn" data-user='{"id": 5, "username": "student1", "role": "STUDENT"}'>
+                                    <i class="fas fa-user-graduate"></i>
+                                    学生账户 (student1)
+                                </button>
+                                <button class="login-option-btn" data-user='{"id": 2, "username": "admin", "role": "ADMIN"}'>
+                                    <i class="fas fa-user-shield"></i>
+                                    管理员账户 (admin)
+                                </button>
+                                <button class="login-option-btn" data-user='{"id": 7, "username": "guest1", "role": "GUEST"}'>
+                                    <i class="fas fa-user"></i>
+                                    访客账户 (guest1)
+                                </button>
+                            </div>
+                            <div class="login-note">
+                                <p><small><i class="fas fa-info-circle"></i> 这是演示环境，选择任意账户即可体验功能</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        $('body').append(loginModal);
+
+        // 绑定事件
+        loginModal.find('.modal-close').click(function() {
+            loginModal.remove();
+        });
+
+        loginModal.find('.login-option-btn').click(function() {
+            const userData = JSON.parse($(this).data('user'));
+            performQuickLogin(userData);
+            loginModal.remove();
+        });
+
+        // 点击背景关闭
+        loginModal.click(function(e) {
+            if (e.target === this) {
+                loginModal.remove();
+            }
+        });
+    }
+
+    // 执行快速登录
+    function performQuickLogin(userData) {
+        // 保存用户信息到localStorage
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        currentUser = userData;
+
+        // 隐藏登录提示
+        hideLoginPrompt();
+
+        // 重新加载用户状态
+        if (announcementData) {
+            loadUserStatus();
+        }
+
+        // 显示登录成功消息
+        showMessage(`欢迎，${userData.username}！`, 'success');
+
+        console.log('快速登录成功:', userData);
     }
 });
