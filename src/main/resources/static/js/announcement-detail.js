@@ -17,13 +17,19 @@ $(document).ready(function() {
         const urlParams = new URLSearchParams(window.location.search);
         announcementId = urlParams.get('id');
 
+        console.log('初始化公告详情页面');
+        console.log('URL参数:', window.location.search);
+        console.log('公告ID:', announcementId);
+
         if (!announcementId) {
+            console.error('缺少公告ID参数');
             showError('缺少公告ID参数');
             return;
         }
 
         // 获取当前用户信息
         currentUser = getCurrentUser();
+        console.log('当前用户:', currentUser);
 
         // 绑定事件
         bindEvents();
@@ -438,10 +444,27 @@ $(document).ready(function() {
 
     // 切换点赞状态
     function toggleLike() {
+        console.log('toggleLike called, currentUser:', currentUser);
+        console.log('announcementId:', announcementId);
+
         if (!currentUser) {
             showMessage('请先登录', 'warning');
+            console.log('用户未登录，跳转到登录页面');
+            // 可以选择跳转到登录页面
+            // window.location.href = 'login.html';
             return;
         }
+
+        if (!announcementId) {
+            showMessage('公告ID无效', 'error');
+            console.error('announcementId is null or undefined');
+            return;
+        }
+
+        console.log('发送点赞请求:', {
+            userId: currentUser.id,
+            announcementId: announcementId
+        });
 
         $.ajax({
             url: '/api/likes/announcement',
@@ -452,12 +475,35 @@ $(document).ready(function() {
                 announcementId: announcementId
             }),
             success: function(data) {
+                console.log('点赞请求成功:', data);
                 updateLikeButton(data.isLiked, data.likeCount);
                 showMessage(data.isLiked ? '点赞成功' : '取消点赞', 'success');
+
+                // 更新公告数据中的点赞数
+                if (announcementData) {
+                    announcementData.likeCount = data.likeCount;
+                }
             },
             error: function(xhr, status, error) {
-                console.error('点赞操作失败:', error);
-                showMessage('操作失败，请稍后重试', 'error');
+                console.error('点赞操作失败:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+
+                let errorMessage = '操作失败，请稍后重试';
+                if (xhr.status === 400) {
+                    errorMessage = '请求参数错误';
+                } else if (xhr.status === 401) {
+                    errorMessage = '请先登录';
+                } else if (xhr.status === 404) {
+                    errorMessage = '公告不存在';
+                } else if (xhr.status === 500) {
+                    errorMessage = '服务器错误，请稍后重试';
+                }
+
+                showMessage(errorMessage, 'error');
             }
         });
     }
@@ -490,16 +536,32 @@ $(document).ready(function() {
 
     // 更新点赞按钮状态
     function updateLikeButton(isLiked, likeCount) {
+        console.log('更新点赞按钮状态:', { isLiked, likeCount });
+
         const likeBtn = $('#like-btn');
         const likeText = likeBtn.find('.like-text');
         const likeCountSpan = likeBtn.find('.like-count');
+
+        if (likeBtn.length === 0) {
+            console.error('找不到点赞按钮元素');
+            return;
+        }
 
         likeBtn.attr('data-liked', isLiked);
         likeText.text(isLiked ? '已点赞' : '点赞');
         likeCountSpan.text(likeCount);
 
+        // 更新按钮样式
+        if (isLiked) {
+            likeBtn.addClass('liked');
+        } else {
+            likeBtn.removeClass('liked');
+        }
+
         // 更新头部统计
         $('#announcement-likes').text(likeCount);
+
+        console.log('点赞按钮状态更新完成');
     }
 
     // 更新收藏按钮状态

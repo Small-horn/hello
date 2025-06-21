@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点赞功能测试</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>点赞功能测试页面</h1>
+    
+    <div class="test-section">
+        <h2>1. 用户登录状态</h2>
+        <button class="btn btn-primary" onclick="checkLoginStatus()">检查登录状态</button>
+        <button class="btn btn-success" onclick="simulateLogin()">模拟登录</button>
+        <button class="btn btn-danger" onclick="logout()">退出登录</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 点赞功能测试</h2>
+        <p>公告ID: <input type="number" id="announcement-id" value="1" style="width: 100px;"></p>
+        <button class="btn btn-primary" onclick="testLike()">测试点赞</button>
+        <button class="btn btn-primary" onclick="checkLikeStatus()">检查点赞状态</button>
+        <div id="like-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 公告详情测试</h2>
+        <button class="btn btn-primary" onclick="loadAnnouncementDetail()">加载公告详情</button>
+        <div id="announcement-result" class="result"></div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        function checkLoginStatus() {
+            const userStr = localStorage.getItem('currentUser');
+            currentUser = userStr ? JSON.parse(userStr) : null;
+            
+            const resultDiv = $('#login-result');
+            if (currentUser) {
+                resultDiv.html(`<div class="success">已登录用户: ${currentUser.username} (ID: ${currentUser.id})</div>`);
+            } else {
+                resultDiv.html(`<div class="error">未登录</div>`);
+            }
+        }
+
+        function simulateLogin() {
+            // 模拟登录用户ID为5的用户
+            const testUser = {
+                id: 5,
+                username: 'student1',
+                role: 'STUDENT'
+            };
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+            currentUser = testUser;
+            
+            $('#login-result').html(`<div class="success">模拟登录成功: ${testUser.username} (ID: ${testUser.id})</div>`);
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            $('#login-result').html(`<div class="info">已退出登录</div>`);
+        }
+
+        function testLike() {
+            if (!currentUser) {
+                $('#like-result').html(`<div class="error">请先登录</div>`);
+                return;
+            }
+
+            const announcementId = $('#announcement-id').val();
+            
+            $.ajax({
+                url: '/api/likes/announcement',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userId: currentUser.id,
+                    announcementId: parseInt(announcementId)
+                }),
+                success: function(data) {
+                    $('#like-result').html(`<div class="success">点赞操作成功！状态: ${data.isLiked ? '已点赞' : '未点赞'}, 点赞数: ${data.likeCount}</div>`);
+                },
+                error: function(xhr, status, error) {
+                    $('#like-result').html(`<div class="error">点赞操作失败: ${error}</div>`);
+                }
+            });
+        }
+
+        function checkLikeStatus() {
+            if (!currentUser) {
+                $('#like-result').html(`<div class="error">请先登录</div>`);
+                return;
+            }
+
+            const announcementId = $('#announcement-id').val();
+            
+            $.ajax({
+                url: `/api/likes/announcement/${announcementId}/status`,
+                method: 'GET',
+                data: { userId: currentUser.id },
+                success: function(data) {
+                    $('#like-result').html(`<div class="info">点赞状态: ${data.isLiked ? '已点赞' : '未点赞'}, 点赞数: ${data.likeCount}</div>`);
+                },
+                error: function(xhr, status, error) {
+                    $('#like-result').html(`<div class="error">获取点赞状态失败: ${error}</div>`);
+                }
+            });
+        }
+
+        function loadAnnouncementDetail() {
+            const announcementId = $('#announcement-id').val();
+            
+            $.ajax({
+                url: `/api/announcements/${announcementId}`,
+                method: 'GET',
+                success: function(data) {
+                    $('#announcement-result').html(`<div class="success">公告加载成功: ${data.title}<br>点赞数: ${data.likeCount}, 评论数: ${data.commentCount}, 收藏数: ${data.favoriteCount}</div>`);
+                },
+                error: function(xhr, status, error) {
+                    $('#announcement-result').html(`<div class="error">加载公告失败: ${error}</div>`);
+                }
+            });
+        }
+
+        // 页面加载时检查登录状态
+        $(document).ready(function() {
+            checkLoginStatus();
+        });
+    </script>
+</body>
+</html>

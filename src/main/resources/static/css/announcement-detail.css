@@ -213,25 +213,55 @@
 }
 
 /* 点赞按钮样式 */
-.like-btn[data-liked="true"] {
+.like-btn {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.like-btn:hover {
+    background: #f8f9fa;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.like-btn[data-liked="true"],
+.like-btn.liked {
     background: var(--primary-color);
     color: white;
     border: 1px solid var(--primary-color);
 }
 
-.like-btn[data-liked="true"]:hover {
+.like-btn[data-liked="true"]:hover,
+.like-btn.liked:hover {
     background: var(--dark-color);
     border-color: var(--dark-color);
 }
 
 /* 收藏按钮样式 */
-.favorite-btn[data-favorited="true"] {
+.favorite-btn {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+    background: #fff8e1;
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.favorite-btn[data-favorited="true"],
+.favorite-btn.favorited {
     background: #ffc107;
     color: #212529;
     border: 1px solid #ffc107;
 }
 
-.favorite-btn[data-favorited="true"]:hover {
+.favorite-btn[data-favorited="true"]:hover,
+.favorite-btn.favorited:hover {
     background: #e0a800;
     border-color: #e0a800;
 }
