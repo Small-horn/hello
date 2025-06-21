@@ -3,6 +3,7 @@ package com.hello.controller;
 import com.hello.entity.User;
 import com.hello.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,48 +25,39 @@ public class UserController {
     private UserService userService;
     
     /**
-     * 获取所有用户（支持搜索和筛选）
-     * GET /api/users?keyword=xxx&role=xxx&status=xxx
+     * 获取所有用户（支持搜索、筛选和分页）
+     * GET /api/users?keyword=xxx&role=xxx&status=xxx&page=0&size=10
      */
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(
+    public ResponseEntity<Page<User>> getAllUsers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String role,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<User> users;
+            User.UserRole userRole = null;
+            User.UserStatus userStatus = null;
 
-            // 如果有搜索或筛选条件，使用筛选方法
-            if ((keyword != null && !keyword.trim().isEmpty()) ||
-                (role != null && !role.trim().isEmpty()) ||
-                (status != null && !status.trim().isEmpty())) {
-
-                User.UserRole userRole = null;
-                User.UserStatus userStatus = null;
-
-                // 解析角色参数
-                if (role != null && !role.trim().isEmpty()) {
-                    try {
-                        userRole = User.UserRole.valueOf(role.toUpperCase());
-                    } catch (IllegalArgumentException e) {
-                        // 忽略无效的角色参数
-                    }
+            // 解析角色参数
+            if (role != null && !role.trim().isEmpty()) {
+                try {
+                    userRole = User.UserRole.valueOf(role.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    // 忽略无效的角色参数
                 }
-
-                // 解析状态参数
-                if (status != null && !status.trim().isEmpty()) {
-                    try {
-                        userStatus = User.UserStatus.valueOf(status.toUpperCase());
-                    } catch (IllegalArgumentException e) {
-                        // 忽略无效的状态参数
-                    }
-                }
-
-                users = userService.searchUsers(keyword, userRole, userStatus);
-            } else {
-                users = userService.getAllUsers();
             }
 
+            // 解析状态参数
+            if (status != null && !status.trim().isEmpty()) {
+                try {
+                    userStatus = User.UserStatus.valueOf(status.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    // 忽略无效的状态参数
+                }
+            }
+
+            Page<User> users = userService.searchUsersWithPagination(keyword, userRole, userStatus, page, size);
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

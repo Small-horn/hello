@@ -3,6 +3,11 @@ package com.hello.service;
 import com.hello.entity.User;
 import com.hello.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -174,6 +179,25 @@ public class UserService {
                     return true;
                 })
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * 综合搜索用户（支持关键词、角色、状态筛选和分页）
+     */
+    public Page<User> searchUsersWithPagination(String keyword, User.UserRole role, User.UserStatus status, int page, int size) {
+        // 创建分页对象，按ID降序排序
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        // 先获取所有符合条件的用户
+        List<User> filteredUsers = searchUsers(keyword, role, status);
+
+        // 计算分页
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredUsers.size());
+
+        List<User> pageContent = filteredUsers.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, filteredUsers.size());
     }
     
     /**

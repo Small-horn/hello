@@ -8,32 +8,9 @@ $(document).ready(function() {
     let currentKeyword = '';
     let editingId = null;
     
-    // 等待权限检查完成后初始化
-    $(document).on('pageInitialized', function(event, user) {
-        console.log('收到pageInitialized事件，用户:', user);
-        if (user && user.role === 'ADMIN') {
-            init();
-        } else {
-            console.log('用户权限不足或未登录，显示访问拒绝页面');
-            showAccessDenied();
-        }
-    });
-
-    // 如果权限检查失败或超时，提供备用初始化
-    setTimeout(function() {
-        if (!window.pageInitialized) {
-            console.log('权限检查超时，尝试直接初始化用户管理页面');
-            init();
-        }
-    }, 2000);
-
-    // 立即尝试初始化（用于调试）
-    setTimeout(function() {
-        console.log('强制初始化用户管理页面（调试模式）');
-        if (!window.pageInitialized) {
-            init();
-        }
-    }, 500);
+    // 直接初始化（简化权限检查）
+    console.log('用户管理页面开始初始化');
+    init();
     
     function init() {
         console.log('初始化用户管理页面');
@@ -122,7 +99,10 @@ $(document).ready(function() {
     function loadUsers() {
         showLoading();
 
-        let params = {};
+        let params = {
+            page: currentPage,
+            size: pageSize
+        };
 
         // 添加筛选参数
         if (currentRole) params.role = currentRole;
@@ -150,33 +130,42 @@ $(document).ready(function() {
     }
     
     function renderUsersTable(data) {
-        console.log('开始渲染用户表格，数据:', data);
+        console.log('开始渲染用户表格，分页数据:', data);
         const tbody = $('#users-tbody');
-        // 处理不同的数据格式：分页数据或简单数组
-        const users = Array.isArray(data) ? data : (data.content || []);
 
-        console.log('处理后的用户数据:', users);
-        console.log('用户数量:', users ? users.length : 0);
-
-        if (!users || users.length === 0) {
-            console.log('没有用户数据，显示空状态');
+        // 确保数据是分页格式
+        if (!data || !data.content) {
+            console.error('数据格式错误，期望分页数据格式');
             tbody.empty();
-            tbody.append('<tr><td colspan="8" style="text-align:center; padding: 2rem;">暂无用户数据</td></tr>');
+            tbody.append('<tr><td colspan="8" style="text-align:center; padding: 2rem; color: #dc3545;">数据加载错误</td></tr>');
             $('.table-container').show();
             return;
         }
 
-        console.log('开始渲染', users.length, '个用户');
+        const users = data.content;
+        console.log('当前页用户数据:', users);
+        console.log('当前页用户数量:', users.length);
+        console.log('总用户数量:', data.totalElements);
+
+        if (!users || users.length === 0) {
+            console.log('当前页没有用户数据');
+            tbody.empty();
+            tbody.append('<tr><td colspan="8" style="text-align:center; padding: 2rem;">当前页暂无用户数据</td></tr>');
+            $('.table-container').show();
+            return;
+        }
+
+        console.log(`开始渲染第 ${data.number + 1} 页的 ${users.length} 个用户`);
         tbody.empty();
 
         users.forEach(function(user, index) {
-            console.log('渲染用户', index + 1, ':', user.username);
+            console.log(`渲染用户 ${index + 1}:`, user.username);
             const row = createTableRow(user);
             tbody.append(row);
         });
 
         $('.table-container').show();
-        console.log('用户表格渲染完成');
+        console.log(`用户表格渲染完成 - 第 ${data.number + 1} 页，共 ${data.totalPages} 页`);
     }
     
     function createTableRow(user) {
@@ -234,22 +223,46 @@ $(document).ready(function() {
     
     function renderPagination(data) {
         const container = $('#pagination');
-
-        // 如果是简单数组，不显示分页
-        if (Array.isArray(data)) {
-            container.hide();
-            return;
-        }
-
         const totalPages = data.totalPages;
         const currentPageNum = data.number;
 
+        container.empty().show();
+
+        // 每页显示条数选择器
+        const pageSizeSelector = $(`
+            <div class="page-size-selector">
+                <label for="page-size-select">每页显示：</label>
+                <select id="page-size-select" class="page-size-select">
+                    <option value="5" ${pageSize === 5 ? 'selected' : ''}>5条</option>
+                    <option value="10" ${pageSize === 10 ? 'selected' : ''}>10条</option>
+                    <option value="20" ${pageSize === 20 ? 'selected' : ''}>20条</option>
+                    <option value="50" ${pageSize === 50 ? 'selected' : ''}>50条</option>
+                    <option value="100" ${pageSize === 100 ? 'selected' : ''}>100条</option>
+                </select>
+            </div>
+        `);
+        container.append(pageSizeSelector);
+
+        // 绑定每页显示条数变化事件
+        $('#page-size-select').change(function() {
+            pageSize = parseInt($(this).val());
+            currentPage = 0; // 重置到第一页
+            loadUsers();
+        });
+
         if (totalPages <= 1) {
-            container.hide();
+            // 即使只有一页，也显示分页信息
+            const info = $(`
+                <span class="pagination-info">
+                    共 ${data.totalElements} 条记录
+                </span>
+            `);
+            container.append(info);
             return;
         }
 
-        container.empty().show();
+        // 分页控制区域
+        const paginationControls = $('<div class="pagination-controls"></div>');
 
         // 上一页
         const prevBtn = $(`
@@ -257,7 +270,7 @@ $(document).ready(function() {
                 <i class="fas fa-chevron-left"></i> 上一页
             </button>
         `);
-        container.append(prevBtn);
+        paginationControls.append(prevBtn);
 
         // 页码
         const startPage = Math.max(0, currentPageNum - 2);
@@ -269,7 +282,7 @@ $(document).ready(function() {
                     ${i + 1}
                 </button>
             `);
-            container.append(pageBtn);
+            paginationControls.append(pageBtn);
         }
 
         // 下一页
@@ -278,12 +291,14 @@ $(document).ready(function() {
                 下一页 <i class="fas fa-chevron-right"></i>
             </button>
         `);
-        container.append(nextBtn);
+        paginationControls.append(nextBtn);
+
+        container.append(paginationControls);
 
         // 分页信息
         const info = $(`
             <span class="pagination-info">
-                第 ${currentPageNum + 1} 页，共 ${totalPages} 页，总计 ${data.totalElements} 条
+                第 ${currentPageNum + 1} 页，共 ${totalPages} 页，总计 ${data.totalElements} 条记录
             </span>
         `);
         container.append(info);
