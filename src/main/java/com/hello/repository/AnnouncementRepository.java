@@ -124,8 +124,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * 根据状态和类型筛选公告/活动
      */
     @Query("SELECT a FROM Announcement a WHERE " +
-           "(:status IS NULL OR :status = '' OR a.status = :status) AND " +
-           "(:type IS NULL OR :type = '' OR a.type = :type) " +
+           "(:status IS NULL OR :status = '' OR CAST(a.status AS string) = :status) AND " +
+           "(:type IS NULL OR :type = '' OR CAST(a.type AS string) = :type) " +
            "ORDER BY a.publishTime DESC")
     Page<Announcement> findByFilters(@Param("status") String status,
                                    @Param("type") String type,

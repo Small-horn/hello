@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筛选功能测试</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .demo-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .demo-content {
+            padding: 1.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .mock-data-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-demo {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 公告管理筛选功能测试</h1>
+        <p>测试公告管理页面的筛选、搜索和清除功能</p>
+        
+        <!-- 筛选器演示 -->
+        <div class="demo-section">
+            <div class="demo-header">
+                <h3>1. 筛选器组件演示</h3>
+            </div>
+            <div class="demo-content">
+                <div class="management-filter">
+                    <div class="filter-group">
+                        <label for="demo-status-filter">状态筛选：</label>
+                        <select id="demo-status-filter" class="form-control">
+                            <option value="">全部状态</option>
+                            <option value="DRAFT">草稿</option>
+                            <option value="PUBLISHED">已发布</option>
+                            <option value="CANCELLED">已取消</option>
+                            <option value="EXPIRED">已过期</option>
+                        </select>
+
+                        <label for="demo-type-filter">类型筛选：</label>
+                        <select id="demo-type-filter" class="form-control">
+                            <option value="">全部类型</option>
+                            <option value="ANNOUNCEMENT">公告</option>
+                            <option value="ACTIVITY">活动</option>
+                        </select>
+
+                        <div class="search-group">
+                            <input type="text" id="demo-search-input" placeholder="搜索标题..." class="search-input">
+                            <button id="demo-search-btn" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button id="demo-clear-search-btn" class="clear-search-btn" title="清除搜索">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 筛选状态显示区域 -->
+                <div id="demo-filter-status-container"></div>
+            </div>
+        </div>
+
+        <!-- 功能测试 -->
+        <div class="demo-section">
+            <div class="demo-header">
+                <h3>2. 功能测试</h3>
+            </div>
+            <div class="demo-content">
+                <div class="test-controls">
+                    <button onclick="testStatusFilter()" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> 测试状态筛选
+                    </button>
+                    <button onclick="testTypeFilter()" class="btn btn-success">
+                        <i class="fas fa-tags"></i> 测试类型筛选
+                    </button>
+                    <button onclick="testSearch()" class="btn btn-info">
+                        <i class="fas fa-search"></i> 测试搜索功能
+                    </button>
+                    <button onclick="testCombinedFilter()" class="btn btn-warning">
+                        <i class="fas fa-layer-group"></i> 测试组合筛选
+                    </button>
+                    <button onclick="clearAllDemoFilters()" class="btn btn-secondary">
+                        <i class="fas fa-eraser"></i> 清除所有筛选
+                    </button>
+                </div>
+                
+                <div class="mock-data-info">
+                    <h5><i class="fas fa-info-circle"></i> 模拟数据说明</h5>
+                    <p>测试使用以下模拟数据：</p>
+                    <ul>
+                        <li><strong>状态</strong>: 草稿(2条)、已发布(3条)、已取消(1条)、已过期(1条)</li>
+                        <li><strong>类型</strong>: 公告(4条)、活动(3条)</li>
+                        <li><strong>关键词</strong>: 包含"考试"、"活动"、"通知"等关键词</li>
+                    </ul>
+                </div>
+                
+                <div id="test-result" class="filter-demo" style="display: none;">
+                    <h5>测试结果：</h5>
+                    <div id="test-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模拟数据表格 -->
+        <div class="demo-section">
+            <div class="demo-header">
+                <h3>3. 筛选结果展示</h3>
+            </div>
+            <div class="demo-content">
+                <div class="table-container">
+                    <table class="management-table">
+                        <thead>
+                            <tr>
+                                <th>标题</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>发布者</th>
+                                <th>发布时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="demo-table-body">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="demo-empty-state" style="display: none; text-align: center; padding: 2rem; color: #6c757d;">
+                    <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>没有找到符合条件的数据</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能说明 -->
+        <div class="demo-section">
+            <div class="demo-header">
+                <h3>4. 功能说明</h3>
+            </div>
+            <div class="demo-content">
+                <h5>✨ 已实现的功能</h5>
+                <ul>
+                    <li><strong>状态筛选</strong>: 按公告状态（草稿、已发布、已取消、已过期）筛选</li>
+                    <li><strong>类型筛选</strong>: 按内容类型（公告、活动）筛选</li>
+                    <li><strong>关键词搜索</strong>: 在标题中搜索关键词</li>
+                    <li><strong>组合筛选</strong>: 支持多个筛选条件同时使用</li>
+                    <li><strong>筛选状态显示</strong>: 实时显示当前筛选条件</li>
+                    <li><strong>一键清除</strong>: 快速清除所有筛选条件</li>
+                    <li><strong>前端筛选</strong>: 搜索结果的二次筛选</li>
+                </ul>
+                
+                <h5>🔧 技术实现</h5>
+                <ul>
+                    <li><strong>后端API</strong>: 支持状态和类型参数的分页查询</li>
+                    <li><strong>搜索接口</strong>: 独立的搜索API，支持关键词查询</li>
+                    <li><strong>前端筛选</strong>: 对搜索结果进行客户端筛选</li>
+                    <li><strong>状态管理</strong>: JavaScript变量管理筛选状态</li>
+                    <li><strong>UI反馈</strong>: 实时更新筛选状态显示</li>
+                </ul>
+                
+                <h5>📱 用户体验</h5>
+                <ul>
+                    <li><strong>即时反馈</strong>: 筛选条件改变时立即更新结果</li>
+                    <li><strong>状态提示</strong>: 清楚显示当前筛选条件</li>
+                    <li><strong>快速清除</strong>: 一键清除所有筛选</li>
+                    <li><strong>响应式设计</strong>: 适配移动设备</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // 模拟数据
+        const mockData = [
+            { id: 1, title: '期末考试安排通知', type: 'ANNOUNCEMENT', status: 'PUBLISHED', publisher: '教务处', publishTime: '2024-01-15 10:00' },
+            { id: 2, title: '校园文化节活动报名', type: 'ACTIVITY', status: 'PUBLISHED', publisher: '学生会', publishTime: '2024-01-14 14:30' },
+            { id: 3, title: '图书馆闭馆通知', type: 'ANNOUNCEMENT', status: 'CANCELLED', publisher: '图书馆', publishTime: '2024-01-13 09:15' },
+            { id: 4, title: '社团招新活动', type: 'ACTIVITY', status: 'EXPIRED', publisher: '社团联合会', publishTime: '2024-01-12 16:20' },
+            { id: 5, title: '学术讲座预告', type: 'ANNOUNCEMENT', status: 'DRAFT', publisher: '学术部', publishTime: '2024-01-11 11:45' },
+            { id: 6, title: '体育比赛报名', type: 'ACTIVITY', status: 'PUBLISHED', publisher: '体育部', publishTime: '2024-01-10 13:30' },
+            { id: 7, title: '课程调整通知', type: 'ANNOUNCEMENT', status: 'DRAFT', publisher: '教务处', publishTime: '2024-01-09 08:00' }
+        ];
+
+        let currentData = [...mockData];
+        let currentStatus = '';
+        let currentType = '';
+        let currentKeyword = '';
+
+        // 状态和类型映射
+        const statusMap = {
+            'DRAFT': '草稿',
+            'PUBLISHED': '已发布',
+            'CANCELLED': '已取消',
+            'EXPIRED': '已过期'
+        };
+
+        const typeMap = {
+            'ANNOUNCEMENT': '公告',
+            'ACTIVITY': '活动'
+        };
+
+        // 初始化
+        $(document).ready(function() {
+            renderTable();
+            bindEvents();
+        });
+
+        function bindEvents() {
+            $('#demo-status-filter').change(applyFilters);
+            $('#demo-type-filter').change(applyFilters);
+            $('#demo-search-btn').click(applyFilters);
+            $('#demo-clear-search-btn').click(clearSearch);
+            $('#demo-search-input').keypress(function(e) {
+                if (e.which === 13) applyFilters();
+            });
+        }
+
+        function applyFilters() {
+            currentStatus = $('#demo-status-filter').val();
+            currentType = $('#demo-type-filter').val();
+            currentKeyword = $('#demo-search-input').val().trim();
+
+            // 筛选数据
+            currentData = mockData.filter(item => {
+                let matches = true;
+
+                if (currentStatus && item.status !== currentStatus) {
+                    matches = false;
+                }
+
+                if (currentType && item.type !== currentType) {
+                    matches = false;
+                }
+
+                if (currentKeyword && !item.title.toLowerCase().includes(currentKeyword.toLowerCase())) {
+                    matches = false;
+                }
+
+                return matches;
+            });
+
+            renderTable();
+            updateFilterStatus();
+        }
+
+        function clearSearch() {
+            $('#demo-search-input').val('');
+            applyFilters();
+        }
+
+        function clearAllDemoFilters() {
+            currentStatus = '';
+            currentType = '';
+            currentKeyword = '';
+
+            $('#demo-status-filter').val('');
+            $('#demo-type-filter').val('');
+            $('#demo-search-input').val('');
+
+            currentData = [...mockData];
+            renderTable();
+            updateFilterStatus();
+        }
+
+        function renderTable() {
+            const tbody = $('#demo-table-body');
+            const emptyState = $('#demo-empty-state');
+
+            if (currentData.length === 0) {
+                tbody.empty();
+                emptyState.show();
+                return;
+            }
+
+            emptyState.hide();
+            tbody.empty();
+
+            currentData.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.title}</td>
+                        <td><span class="type-badge ${item.type.toLowerCase()}">${typeMap[item.type]}</span></td>
+                        <td><span class="status-badge ${item.status.toLowerCase()}">${statusMap[item.status]}</span></td>
+                        <td>${item.publisher}</td>
+                        <td>${item.publishTime}</td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }
+
+        function updateFilterStatus() {
+            const container = $('#demo-filter-status-container');
+            const filterInfo = [];
+
+            if (currentStatus) {
+                filterInfo.push(`状态: ${statusMap[currentStatus]}`);
+            }
+            if (currentType) {
+                filterInfo.push(`类型: ${typeMap[currentType]}`);
+            }
+            if (currentKeyword) {
+                filterInfo.push(`搜索: "${currentKeyword}"`);
+            }
+
+            if (filterInfo.length > 0) {
+                const statusHtml = `
+                    <div class="filter-status">
+                        <span class="filter-label">当前筛选：</span>
+                        <span class="filter-items">${filterInfo.join(' | ')}</span>
+                        <button class="clear-filters-btn" onclick="clearAllDemoFilters()">
+                            <i class="fas fa-times"></i> 清除筛选
+                        </button>
+                    </div>
+                `;
+                container.html(statusHtml);
+            } else {
+                container.empty();
+            }
+        }
+
+        // 测试函数
+        function testStatusFilter() {
+            $('#demo-status-filter').val('PUBLISHED');
+            applyFilters();
+            showTestResult(`状态筛选测试：筛选出 ${currentData.length} 条已发布的记录`);
+        }
+
+        function testTypeFilter() {
+            clearAllDemoFilters();
+            $('#demo-type-filter').val('ACTIVITY');
+            applyFilters();
+            showTestResult(`类型筛选测试：筛选出 ${currentData.length} 条活动记录`);
+        }
+
+        function testSearch() {
+            clearAllDemoFilters();
+            $('#demo-search-input').val('活动');
+            applyFilters();
+            showTestResult(`搜索功能测试：搜索"活动"找到 ${currentData.length} 条记录`);
+        }
+
+        function testCombinedFilter() {
+            clearAllDemoFilters();
+            $('#demo-status-filter').val('PUBLISHED');
+            $('#demo-type-filter').val('ANNOUNCEMENT');
+            applyFilters();
+            showTestResult(`组合筛选测试：已发布的公告有 ${currentData.length} 条记录`);
+        }
+
+        function showTestResult(message) {
+            $('#test-output').text(message);
+            $('#test-result').show();
+            
+            setTimeout(() => {
+                $('#test-result').fadeOut();
+            }, 3000);
+        }
+
+        // 导出函数供HTML调用
+        window.clearAllDemoFilters = clearAllDemoFilters;
+    </script>
+</body>
+</html>

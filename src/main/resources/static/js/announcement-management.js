@@ -130,6 +130,9 @@ $(document).ready(function() {
             if (e.which === 13) performSearch();
         });
 
+        // 清除搜索
+        $('#clear-search-btn').click(clearSearch);
+
         // 编辑功能（仅管理员和教师可用）
         if (user && (user.role === 'ADMIN' || user.role === 'TEACHER')) {
             console.log('绑定编辑功能事件');
@@ -161,10 +164,61 @@ $(document).ready(function() {
         currentPage = 0;
         loadAnnouncements();
     }
+
+    // 清除搜索
+    function clearSearch() {
+        currentKeyword = '';
+        $('#search-input').val('');
+        currentPage = 0;
+        loadAnnouncements();
+    }
+
+    // 清除所有筛选条件
+    function clearAllFilters() {
+        currentStatus = '';
+        currentType = '';
+        currentKeyword = '';
+        currentPage = 0;
+
+        // 重置表单元素
+        $('#status-filter').val('');
+        $('#type-filter').val('');
+        $('#search-input').val('');
+
+        loadAnnouncements();
+    }
+
+    // 验证筛选参数
+    function validateFilterParams() {
+        // 验证状态参数
+        if (currentStatus && !['DRAFT', 'PUBLISHED', 'CANCELLED', 'EXPIRED'].includes(currentStatus)) {
+            console.error('无效的状态参数:', currentStatus);
+            return false;
+        }
+
+        // 验证类型参数
+        if (currentType && !['ANNOUNCEMENT', 'ACTIVITY'].includes(currentType)) {
+            console.error('无效的类型参数:', currentType);
+            return false;
+        }
+
+        return true;
+    }
+
+    // 导出清除筛选函数供HTML调用
+    window.clearAllFilters = clearAllFilters;
     
     function loadAnnouncements() {
         console.log('开始加载公告数据...');
         showLoading();
+        updateFilterStatus(); // 更新筛选状态显示
+
+        // 验证筛选参数
+        if (!validateFilterParams()) {
+            hideLoading();
+            showMessage('筛选参数无效，请检查输入', 'error');
+            return;
+        }
 
         let url = '/api/announcements';
         let params = {
@@ -182,14 +236,14 @@ $(document).ready(function() {
             console.log('添加类型筛选:', currentType);
         }
 
-        // 如果有搜索关键词，使用搜索接口
+        // 如果有搜索关键词，优先使用搜索接口
         if (currentKeyword) {
             url = '/api/announcements/search';
             params.keyword = currentKeyword;
-            // 搜索接口暂时不支持状态和类型筛选，所以清除这些参数
-            delete params.status;
-            delete params.type;
+
+            // 尝试在前端进行筛选（如果搜索接口不支持筛选）
             console.log('使用搜索接口，关键词:', currentKeyword);
+            console.log('将在前端进行状态和类型筛选');
         }
 
         console.log('请求URL:', url);
@@ -202,16 +256,119 @@ $(document).ready(function() {
             success: function(data) {
                 console.log('数据加载成功:', data);
                 hideLoading();
+
+                // 如果是搜索结果且有筛选条件，在前端进行筛选
+                if (currentKeyword && (currentStatus || currentType)) {
+                    data = filterSearchResults(data);
+                }
+
                 renderAnnouncementsTable(data);
                 renderPagination(data);
             },
             error: function(xhr, status, error) {
-                console.error('数据加载失败:', error, xhr.responseText);
+                console.error('数据加载失败详情:');
+                console.error('- Status:', status);
+                console.error('- Error:', error);
+                console.error('- Response:', xhr.responseText);
+                console.error('- Status Code:', xhr.status);
+                console.error('- Request URL:', url);
+                console.error('- Request Params:', params);
+
                 hideLoading();
-                showMessage('加载数据失败，请稍后重试', 'error');
-                console.error('加载数据失败:', error, xhr.responseText);
+
+                let errorMessage = '加载数据失败';
+                if (xhr.status === 500) {
+                    errorMessage = '服务器内部错误，请检查筛选条件是否正确';
+                } else if (xhr.status === 404) {
+                    errorMessage = '请求的接口不存在';
+                } else if (xhr.status === 403) {
+                    errorMessage = '没有权限访问该数据';
+                }
+
+                showMessage(errorMessage, 'error');
+
+                // 如果是筛选导致的错误，尝试回退到无筛选状态
+                if (xhr.status === 500 && (currentStatus || currentType)) {
+                    console.log('尝试回退到无筛选状态...');
+                    setTimeout(() => {
+                        clearAllFilters();
+                    }, 2000);
+                    return;
+                }
+
+                // 显示空状态
+                $('#announcements-tbody').empty();
+                $('#empty-state').show();
+                $('.table-container').hide();
             }
         });
+    }
+
+    // 对搜索结果进行前端筛选
+    function filterSearchResults(data) {
+        if (!data.content || data.content.length === 0) {
+            return data;
+        }
+
+        let filteredContent = data.content;
+
+        // 状态筛选
+        if (currentStatus) {
+            filteredContent = filteredContent.filter(item => item.status === currentStatus);
+        }
+
+        // 类型筛选
+        if (currentType) {
+            filteredContent = filteredContent.filter(item => item.type === currentType);
+        }
+
+        console.log(`前端筛选：原始 ${data.content.length} 条，筛选后 ${filteredContent.length} 条`);
+
+        // 返回筛选后的数据结构
+        return {
+            ...data,
+            content: filteredContent,
+            totalElements: filteredContent.length,
+            totalPages: Math.ceil(filteredContent.length / pageSize),
+            numberOfElements: filteredContent.length
+        };
+    }
+
+    // 更新筛选状态显示
+    function updateFilterStatus() {
+        const filterInfo = [];
+
+        if (currentStatus) {
+            filterInfo.push(`状态: ${getStatusDisplayName(currentStatus)}`);
+        }
+        if (currentType) {
+            filterInfo.push(`类型: ${getTypeDisplayName(currentType)}`);
+        }
+        if (currentKeyword) {
+            filterInfo.push(`搜索: "${currentKeyword}"`);
+        }
+
+        const filterStatusEl = $('#filter-status');
+        if (filterInfo.length > 0) {
+            if (filterStatusEl.length === 0) {
+                // 创建筛选状态显示元素
+                const statusHtml = `
+                    <div id="filter-status" class="filter-status">
+                        <span class="filter-label">当前筛选：</span>
+                        <span class="filter-items">${filterInfo.join(' | ')}</span>
+                        <button class="clear-filters-btn" onclick="clearAllFilters()">
+                            <i class="fas fa-times"></i> 清除筛选
+                        </button>
+                    </div>
+                `;
+                $('.management-filter').after(statusHtml);
+            } else {
+                filterStatusEl.find('.filter-items').text(filterInfo.join(' | '));
+                filterStatusEl.show();
+            }
+        } else {
+            filterStatusEl.hide();
+        }
     }
     
     function renderAnnouncementsTable(data) {
@@ -295,7 +452,7 @@ $(document).ready(function() {
             <button class="action-btn edit" onclick="editAnnouncement(${announcement.id})">
                 <i class="fas fa-edit"></i> 编辑
             </button>
-            ${announcement.status === 'DRAFT' ?
+            ${(announcement.status === 'DRAFT' || announcement.status === 'CANCELLED') ?
                 `<button class="action-btn publish" onclick="publishAnnouncement(${announcement.id})">
                     <i class="fas fa-upload"></i> 发布
                 </button>` :

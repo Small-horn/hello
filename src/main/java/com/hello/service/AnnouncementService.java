@@ -43,8 +43,41 @@ public class AnnouncementService {
             return announcementRepository.findAll(pageable);
         }
 
-        // 根据筛选条件查询
-        return announcementRepository.findByFilters(status, type, pageable);
+        // 处理单独的筛选条件
+        if (status != null && !status.trim().isEmpty() && (type == null || type.trim().isEmpty())) {
+            try {
+                Announcement.AnnouncementStatus statusEnum = Announcement.AnnouncementStatus.valueOf(status.toUpperCase());
+                return announcementRepository.findByStatus(statusEnum, pageable);
+            } catch (IllegalArgumentException e) {
+                // 如果状态值无效，返回空结果
+                return Page.empty(pageable);
+            }
+        }
+
+        if (type != null && !type.trim().isEmpty() && (status == null || status.trim().isEmpty())) {
+            try {
+                Announcement.AnnouncementType typeEnum = Announcement.AnnouncementType.valueOf(type.toUpperCase());
+                return announcementRepository.findByType(typeEnum, pageable);
+            } catch (IllegalArgumentException e) {
+                // 如果类型值无效，返回空结果
+                return Page.empty(pageable);
+            }
+        }
+
+        // 处理同时有状态和类型的筛选
+        if (status != null && !status.trim().isEmpty() && type != null && !type.trim().isEmpty()) {
+            try {
+                Announcement.AnnouncementStatus statusEnum = Announcement.AnnouncementStatus.valueOf(status.toUpperCase());
+                Announcement.AnnouncementType typeEnum = Announcement.AnnouncementType.valueOf(type.toUpperCase());
+                return announcementRepository.findByTypeAndStatus(typeEnum, statusEnum, pageable);
+            } catch (IllegalArgumentException e) {
+                // 如果枚举值无效，返回空结果
+                return Page.empty(pageable);
+            }
+        }
+
+        // 默认返回所有数据
+        return announcementRepository.findAll(pageable);
     }
     
     /**
