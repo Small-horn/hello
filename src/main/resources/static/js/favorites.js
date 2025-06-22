@@ -28,6 +28,11 @@ $(document).ready(function() {
     function init() {
         console.log('初始化收藏页面，当前用户:', currentUser);
 
+        // 更新侧边栏头像
+        if (typeof AvatarUtils !== 'undefined') {
+            AvatarUtils.updateSidebarAvatar(currentUser ? currentUser.id : null);
+        }
+
         // 绑定事件
         bindEvents();
 

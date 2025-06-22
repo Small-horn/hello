@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .avatar-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .avatar-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+        .avatar-item .user-id {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .comment-demo {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #fafafa;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .comment-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+        .comment-username {
+            font-weight: bold;
+            color: #333;
+        }
+        .comment-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .comment-content {
+            color: #555;
+            line-height: 1.5;
+        }
+        .test-controls {
+            margin: 20px 0;
+        }
+        .test-controls button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .test-controls button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>头像功能测试页面</h1>
+        
+        <div class="test-section">
+            <h3>1. 所有头像预览（用户ID 1-17）</h3>
+            <div class="avatar-grid" id="avatar-grid">
+                <!-- 头像将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 评论样式测试</h3>
+            <div class="test-controls">
+                <button onclick="generateRandomComments()">生成随机评论</button>
+                <button onclick="clearComments()">清空评论</button>
+            </div>
+            <div id="comments-demo">
+                <!-- 评论演示将在这里显示 -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 头像工具函数测试</h3>
+            <div class="test-controls">
+                <input type="number" id="user-id-input" placeholder="输入用户ID" min="1" max="100" value="1">
+                <button onclick="testGetUserAvatar()">获取头像路径</button>
+                <button onclick="testUpdateAvatar()">更新测试头像</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <strong>测试结果：</strong>
+                <div id="test-result" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;"></div>
+            </div>
+            <div style="margin-top: 15px;">
+                <strong>测试头像：</strong>
+                <img id="test-avatar" src="images/avatar.jpg" alt="测试头像" style="width: 60px; height: 60px; border-radius: 50%; margin-left: 10px;" onerror="this.src='images/avatar.jpg'">
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入jQuery和头像工具 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/avatar-utils.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // 生成所有头像预览
+            generateAvatarGrid();
+            
+            // 生成一些示例评论
+            generateRandomComments();
+        });
+
+        function generateAvatarGrid() {
+            const grid = $('#avatar-grid');
+            grid.empty();
+            
+            for (let i = 1; i <= 17; i++) {
+                const avatarPath = AvatarUtils.getUserAvatar(i);
+                const item = $(`
+                    <div class="avatar-item">
+                        <img src="${avatarPath}" alt="用户${i}头像" onerror="this.src='images/avatar.jpg'">
+                        <div class="user-id">用户 ${i}</div>
+                    </div>
+                `);
+                grid.append(item);
+            }
+        }
+
+        function generateRandomComments() {
+            const container = $('#comments-demo');
+            container.empty();
+            
+            const sampleComments = [
+                { userId: 1, username: '张三', content: '这个功能很不错，期待更多更新！' },
+                { userId: 5, username: '李四', content: '界面设计很美观，用户体验很好。' },
+                { userId: 12, username: '王五', content: '希望能增加更多的个性化设置选项。' },
+                { userId: 8, username: '赵六', content: '系统运行很稳定，没有遇到什么问题。' },
+                { userId: 15, username: '钱七', content: '建议添加夜间模式，保护眼睛。' }
+            ];
+            
+            sampleComments.forEach(function(comment) {
+                const avatarPath = AvatarUtils.getUserAvatar(comment.userId);
+                const commentHtml = $(`
+                    <div class="comment-demo">
+                        <div class="comment-header">
+                            <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.src='images/avatar.jpg'">
+                            <span class="comment-username">${comment.username}</span>
+                            <span class="comment-time">刚刚</span>
+                        </div>
+                        <div class="comment-content">${comment.content}</div>
+                    </div>
+                `);
+                container.append(commentHtml);
+            });
+        }
+
+        function clearComments() {
+            $('#comments-demo').empty();
+        }
+
+        function testGetUserAvatar() {
+            const userId = parseInt($('#user-id-input').val());
+            if (isNaN(userId)) {
+                $('#test-result').text('请输入有效的用户ID');
+                return;
+            }
+            
+            const avatarPath = AvatarUtils.getUserAvatar(userId);
+            $('#test-result').html(`
+                用户ID: ${userId}<br>
+                头像路径: ${avatarPath}<br>
+                计算公式: ((${userId} - 1) % 17) + 1 = ${((userId - 1) % 17) + 1}
+            `);
+        }
+
+        function testUpdateAvatar() {
+            const userId = parseInt($('#user-id-input').val());
+            if (isNaN(userId)) {
+                $('#test-result').text('请输入有效的用户ID');
+                return;
+            }
+            
+            AvatarUtils.updateAvatar('#test-avatar', userId);
+            $('#test-result').html(`
+                已更新测试头像为用户ID ${userId} 的头像
+            `);
+        }
+    </script>
+</body>
+</html>

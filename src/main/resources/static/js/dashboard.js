@@ -72,16 +72,26 @@ $(document).ready(function() {
         if (user) {
             $('.current-user-name').text(user.realName || user.username);
             $('.current-user-role').text(user.roleDisplayName).removeClass().addClass('role-badge current-user-role ' + user.role.toLowerCase());
-            
+
             if (user.department) {
                 $('.current-user-department').text(' - ' + user.department);
             }
-            
+
             $('#login-count').text(user.loginCount || 0);
+
+            // 更新侧边栏头像
+            if (typeof AvatarUtils !== 'undefined') {
+                AvatarUtils.updateSidebarAvatar(user.id);
+            }
         } else {
             $('.current-user-name').text('游客');
             $('.current-user-role').text('游客').removeClass().addClass('role-badge current-user-role guest');
             $('#login-count').text('--');
+
+            // 使用默认头像
+            if (typeof AvatarUtils !== 'undefined') {
+                AvatarUtils.updateSidebarAvatar(null);
+            }
         }
     }
     

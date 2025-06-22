@@ -29,6 +29,11 @@ $(document).ready(function() {
         currentUser = getCurrentUser();
         console.log('当前用户:', currentUser);
 
+        // 更新侧边栏头像
+        if (typeof AvatarUtils !== 'undefined') {
+            AvatarUtils.updateSidebarAvatar(currentUser ? currentUser.id : null);
+        }
+
         // 绑定事件
         bindEvents();
 

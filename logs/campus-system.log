@@ -4201,3 +4201,252 @@ Identify and stop the process that's listening on port 8080 or configure this ap
 2025-06-22 14:43:59.787 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2025-06-22 14:43:59.789 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Shutdown initiated...
 2025-06-22 14:43:59.794 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Shutdown completed.
+2025-06-22 16:48:10.187 [main] INFO  com.hello.HelloApplication - Starting HelloApplication using Java 17.0.9 with PID 15112 (E:\1code\spring boot\hello\target\classes started by wushuanglang in E:\1code\spring boot\hello)
+2025-06-22 16:48:10.199 [main] INFO  com.hello.HelloApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-22 16:48:11.011 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22 16:48:11.069 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 48 ms. Found 5 JPA repository interfaces.
+2025-06-22 16:48:11.472 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-22 16:48:11.483 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-22 16:48:11.484 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-22 16:48:11.548 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-22 16:48:11.549 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1304 ms
+2025-06-22 16:48:11.766 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22 16:48:11.813 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-22 16:48:11.841 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-22 16:48:12.111 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22 16:48:12.134 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Starting...
+2025-06-22 16:48:12.359 [main] INFO  com.zaxxer.hikari.pool.HikariPool - CampusHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@28e91f6d
+2025-06-22 16:48:12.360 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Start completed.
+2025-06-22 16:48:12.425 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-22 16:48:12.439 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (CampusHikariCP)']
+	Database driver: undefined/unknown
+	Database version: 8.0.36
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22 16:48:13.235 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22 16:48:13.528 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 16:48:13.724 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-22 16:48:14.663 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-22 16:48:14.881 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2025-06-22 16:48:15.178 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-06-22 16:48:15.249 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-22 16:48:15.262 [main] INFO  com.hello.HelloApplication - Started HelloApplication in 5.582 seconds (process running for 6.578)
+2025-06-22 16:48:15.784 [RMI TCP Connection(2)-192.168.0.105] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-22 16:48:15.785 [RMI TCP Connection(2)-192.168.0.105] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-22 16:48:15.786 [RMI TCP Connection(2)-192.168.0.105] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-06-22 16:49:01.769 [http-nio-8080-exec-9] WARN  o.a.c.util.SessionIdGeneratorBase - Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [136] milliseconds.
+2025-06-22 16:49:58.716 [http-nio-8080-exec-9] WARN  o.s.d.w.c.SpringDataJacksonConfiguration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2025-06-22 16:53:08.072 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-22 16:53:08.698 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-06-22 16:53:08.716 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 16:53:08.716 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Shutdown initiated...
+2025-06-22 16:53:08.730 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Shutdown completed.
+2025-06-22 16:54:42.474 [main] INFO  com.hello.HelloApplication - Starting HelloApplication using Java 17.0.9 with PID 16800 (E:\1code\spring boot\hello\target\classes started by wushuanglang in E:\1code\spring boot\hello)
+2025-06-22 16:54:42.477 [main] INFO  com.hello.HelloApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-22 16:54:43.473 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22 16:54:43.563 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 77 ms. Found 5 JPA repository interfaces.
+2025-06-22 16:54:44.415 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-22 16:54:44.449 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-22 16:54:44.450 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-22 16:54:44.603 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-22 16:54:44.603 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2065 ms
+2025-06-22 16:54:44.895 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22 16:54:44.970 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-22 16:54:45.012 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-22 16:54:45.341 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22 16:54:45.385 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Starting...
+2025-06-22 16:54:45.687 [main] INFO  com.zaxxer.hikari.pool.HikariPool - CampusHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@d0fabc8
+2025-06-22 16:54:45.689 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Start completed.
+2025-06-22 16:54:45.771 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-22 16:54:45.794 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (CampusHikariCP)']
+	Database driver: undefined/unknown
+	Database version: 8.0.36
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22 16:54:46.742 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22 16:54:47.013 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 16:54:47.250 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-22 16:54:48.355 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-22 16:54:48.592 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2025-06-22 16:54:48.829 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-06-22 16:54:48.955 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-22 16:54:48.968 [main] INFO  com.hello.HelloApplication - Started HelloApplication in 7.175 seconds (process running for 7.607)
+2025-06-22 16:55:35.596 [main] INFO  com.hello.HelloApplication - Starting HelloApplication using Java 17.0.9 with PID 36116 (E:\1code\spring boot\hello\target\classes started by wushuanglang in E:\1code\spring boot\hello)
+2025-06-22 16:55:35.598 [main] INFO  com.hello.HelloApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-22 16:55:36.499 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22 16:55:36.583 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 72 ms. Found 5 JPA repository interfaces.
+2025-06-22 16:55:37.197 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-22 16:55:37.227 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-22 16:55:37.227 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-22 16:55:37.325 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-22 16:55:37.326 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1689 ms
+2025-06-22 16:55:37.537 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22 16:55:37.586 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-22 16:55:37.620 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-22 16:55:37.883 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22 16:55:37.915 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Starting...
+2025-06-22 16:55:38.059 [main] INFO  com.zaxxer.hikari.pool.HikariPool - CampusHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@50fd739d
+2025-06-22 16:55:38.061 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Start completed.
+2025-06-22 16:55:38.114 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-22 16:55:38.135 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (CampusHikariCP)']
+	Database driver: undefined/unknown
+	Database version: 8.0.36
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22 16:55:38.936 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22 16:55:39.104 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 16:55:39.306 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-22 16:55:40.399 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-22 16:55:40.606 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2025-06-22 16:55:40.790 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-06-22 16:55:40.859 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-22 16:55:40.871 [main] INFO  com.hello.HelloApplication - Started HelloApplication in 5.758 seconds (process running for 6.089)
+2025-06-22 16:56:19.913 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-22 16:56:19.914 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-22 16:56:19.917 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-06-22 16:56:20.632 [http-nio-8080-exec-7] WARN  o.a.c.util.SessionIdGeneratorBase - Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [192] milliseconds.
+2025-06-22 16:56:28.530 [http-nio-8080-exec-3] WARN  o.s.d.w.c.SpringDataJacksonConfiguration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2025-06-22 17:03:53.371 [main] INFO  com.hello.HelloApplication - Starting HelloApplication using Java 17.0.9 with PID 8160 (E:\1code\spring boot\hello\target\classes started by wushuanglang in E:\1code\spring boot\hello)
+2025-06-22 17:03:53.374 [main] INFO  com.hello.HelloApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-22 17:03:54.227 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22 17:03:54.300 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 60 ms. Found 5 JPA repository interfaces.
+2025-06-22 17:03:54.883 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-22 17:03:54.906 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-22 17:03:54.907 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-22 17:03:55.005 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-22 17:03:55.006 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1588 ms
+2025-06-22 17:03:55.240 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22 17:03:55.311 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-22 17:03:55.351 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-22 17:03:55.665 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22 17:03:55.702 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Starting...
+2025-06-22 17:03:55.876 [main] INFO  com.zaxxer.hikari.pool.HikariPool - CampusHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@3f1d6a13
+2025-06-22 17:03:55.878 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Start completed.
+2025-06-22 17:03:55.947 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-22 17:03:55.964 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (CampusHikariCP)']
+	Database driver: undefined/unknown
+	Database version: 8.0.36
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22 17:03:56.872 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22 17:03:57.078 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 17:03:57.293 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-22 17:03:58.590 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-22 17:03:58.825 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2025-06-22 17:03:59.023 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-06-22 17:03:59.106 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-22 17:03:59.118 [main] INFO  com.hello.HelloApplication - Started HelloApplication in 6.321 seconds (process running for 6.688)
+2025-06-22 17:04:02.297 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-22 17:04:02.297 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-22 17:04:02.299 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-06-22 17:04:02.618 [http-nio-8080-exec-5] WARN  o.a.c.util.SessionIdGeneratorBase - Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [107] milliseconds.
+2025-06-22 17:05:25.768 [http-nio-8080-exec-2] WARN  o.s.d.w.c.SpringDataJacksonConfiguration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2025-06-22 17:32:24.284 [main] INFO  com.hello.HelloApplication - Starting HelloApplication using Java 17.0.9 with PID 30692 (E:\1code\spring boot\hello\target\classes started by wushuanglang in E:\1code\spring boot\hello)
+2025-06-22 17:32:24.285 [main] INFO  com.hello.HelloApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-22 17:32:25.072 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22 17:32:25.129 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 48 ms. Found 5 JPA repository interfaces.
+2025-06-22 17:32:25.574 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-22 17:32:25.588 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-22 17:32:25.588 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-22 17:32:25.655 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-22 17:32:25.655 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1327 ms
+2025-06-22 17:32:25.888 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22 17:32:25.948 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-22 17:32:25.980 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-22 17:32:26.247 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22 17:32:26.277 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Starting...
+2025-06-22 17:32:26.417 [main] INFO  com.zaxxer.hikari.pool.HikariPool - CampusHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@24f90aff
+2025-06-22 17:32:26.419 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Start completed.
+2025-06-22 17:32:26.483 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-22 17:32:26.503 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (CampusHikariCP)']
+	Database driver: undefined/unknown
+	Database version: 8.0.36
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22 17:32:27.326 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22 17:32:27.534 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 17:32:27.712 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-22 17:32:28.763 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-22 17:32:28.949 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2025-06-22 17:32:29.185 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-06-22 17:32:29.250 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-22 17:32:29.261 [main] INFO  com.hello.HelloApplication - Started HelloApplication in 5.395 seconds (process running for 6.13)
+2025-06-22 17:32:29.548 [RMI TCP Connection(1)-192.168.0.105] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-22 17:32:29.548 [RMI TCP Connection(1)-192.168.0.105] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-22 17:32:29.550 [RMI TCP Connection(1)-192.168.0.105] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-06-22 17:32:35.783 [http-nio-8080-exec-3] WARN  o.a.c.util.SessionIdGeneratorBase - Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [139] milliseconds.
+2025-06-22 17:32:44.169 [http-nio-8080-exec-8] WARN  o.s.d.w.c.SpringDataJacksonConfiguration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2025-06-22 18:24:31.768 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-06-22 18:24:32.363 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-06-22 18:24:32.393 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 18:24:32.409 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Shutdown initiated...
+2025-06-22 18:24:32.412 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Shutdown completed.
+2025-06-22 18:25:05.981 [main] INFO  com.hello.HelloApplication - Starting HelloApplication using Java 17.0.9 with PID 5436 (E:\1code\spring boot\hello\target\classes started by wushuanglang in E:\1code\spring boot\hello)
+2025-06-22 18:25:05.983 [main] INFO  com.hello.HelloApplication - No active profile set, falling back to 1 default profile: "default"
+2025-06-22 18:25:06.779 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-22 18:25:06.845 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 56 ms. Found 5 JPA repository interfaces.
+2025-06-22 18:25:07.340 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-22 18:25:07.352 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-22 18:25:07.352 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.41]
+2025-06-22 18:25:07.419 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-22 18:25:07.420 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1402 ms
+2025-06-22 18:25:07.645 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-22 18:25:07.703 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.15.Final
+2025-06-22 18:25:07.745 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-22 18:25:08.034 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-22 18:25:08.064 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Starting...
+2025-06-22 18:25:08.197 [main] INFO  com.zaxxer.hikari.pool.HikariPool - CampusHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@c2e33
+2025-06-22 18:25:08.198 [main] INFO  com.zaxxer.hikari.HikariDataSource - CampusHikariCP - Start completed.
+2025-06-22 18:25:08.245 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-06-22 18:25:08.269 [main] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (CampusHikariCP)']
+	Database driver: undefined/unknown
+	Database version: 8.0.36
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-06-22 18:25:09.067 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-22 18:25:09.233 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-22 18:25:09.458 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-22 18:25:10.486 [main] INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-22 18:25:10.698 [main] WARN  o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2025-06-22 18:25:11.014 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 3 endpoints beneath base path '/actuator'
+2025-06-22 18:25:11.171 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-06-22 18:25:11.184 [main] INFO  com.hello.HelloApplication - Started HelloApplication in 5.664 seconds (process running for 6.355)
+2025-06-22 18:25:11.727 [RMI TCP Connection(3)-192.168.0.105] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-22 18:25:11.727 [RMI TCP Connection(3)-192.168.0.105] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-22 18:25:11.727 [RMI TCP Connection(3)-192.168.0.105] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2025-06-22 18:25:18.408 [http-nio-8080-exec-10] WARN  o.a.c.util.SessionIdGeneratorBase - Creation of SecureRandom instance for session ID generation using [SHA1PRNG] took [125] milliseconds.
+2025-06-22 18:25:29.348 [http-nio-8080-exec-1] WARN  o.s.d.w.c.SpringDataJacksonConfiguration$PageModule$WarningLoggingModifier - Serializing PageImpl instances as-is is not supported, meaning that there is no guarantee about the stability of the resulting JSON structure!
+	For a stable JSON structure, please use Spring Data's PagedModel (globally via @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO))
+	or Spring HATEOAS and Spring Data's PagedResourcesAssembler as documented in https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web.pageables.
+
+2025-06-22 18:28:05.386 [http-nio-8080-exec-9] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'commentId': Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "null"]

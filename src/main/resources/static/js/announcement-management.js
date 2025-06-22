@@ -52,6 +52,11 @@ $(document).ready(function() {
 
         console.log('开始初始化页面，用户:', user);
 
+        // 更新侧边栏头像
+        if (typeof AvatarUtils !== 'undefined') {
+            AvatarUtils.updateSidebarAvatar(user ? user.id : null);
+        }
+
         // 检查必要的DOM元素
         const tbody = $('#announcements-tbody');
         const table = $('#announcements-table');

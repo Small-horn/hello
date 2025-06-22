@@ -137,7 +137,7 @@ $(document).ready(function() {
         if (!data || !data.content) {
             console.error('数据格式错误，期望分页数据格式');
             tbody.empty();
-            tbody.append('<tr><td colspan="8" style="text-align:center; padding: 2rem; color: #dc3545;">数据加载错误</td></tr>');
+            tbody.append('<tr><td colspan="10" style="text-align:center; padding: 2rem; color: #dc3545;">数据加载错误</td></tr>');
             $('.table-container').show();
             return;
         }
@@ -150,7 +150,7 @@ $(document).ready(function() {
         if (!users || users.length === 0) {
             console.log('当前页没有用户数据');
             tbody.empty();
-            tbody.append('<tr><td colspan="8" style="text-align:center; padding: 2rem;">当前页暂无用户数据</td></tr>');
+            tbody.append('<tr><td colspan="10" style="text-align:center; padding: 2rem;">当前页暂无用户数据</td></tr>');
             $('.table-container').show();
             return;
         }
@@ -171,9 +171,15 @@ $(document).ready(function() {
     function createTableRow(user) {
         const statusClass = user.status.toLowerCase();
         const roleClass = user.role.toLowerCase();
-        
+        const avatarPath = AvatarUtils.getUserAvatar(user.id);
+
         return $(`
             <tr data-id="${user.id}">
+                <td>
+                    <div class="user-avatar-cell">
+                        <img src="${avatarPath}" alt="用户头像" class="user-avatar-small" onerror="this.src='images/avatar.jpg'">
+                    </div>
+                </td>
                 <td>
                     <div class="user-info-cell">
                         <strong>${escapeHtml(user.username)}</strong>

@@ -657,6 +657,11 @@ $(document).ready(function() {
         bindCommentEvents();
     }
 
+    // 获取用户头像路径（使用全局头像工具）
+    function getUserAvatar(userId) {
+        return AvatarUtils.getUserAvatar(userId);
+    }
+
     // 创建评论HTML
     function createCommentHtml(comment) {
         const timeAgo = getTimeAgo(comment.createdAt);
@@ -672,11 +677,14 @@ $(document).ready(function() {
             (currentUser.realName || currentUser.username) :
             commentRealName;
 
+        // 获取用户头像
+        const avatarPath = getUserAvatar(comment.userId);
+
         return `
-            <div class="comment-item" data-comment-id="${comment.id}">
+            <div class="comment-item" data-comment-id="${comment.id}" data-user-id="${comment.userId}">
                 <div class="comment-header">
                     <div class="comment-user-info">
-                        <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
+                        <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.src='images/avatar.jpg'">
                         <span class="comment-username ${isCurrentUserComment ? 'current-user' : ''}">${escapeHtml(displayName)}</span>
                         ${isCurrentUserComment ? '<span class="user-badge">我</span>' : ''}
                     </div>
@@ -847,11 +855,14 @@ $(document).ready(function() {
             (currentUser.realName || currentUser.username) :
             replyRealName;
 
+        // 获取用户头像
+        const avatarPath = getUserAvatar(reply.userId);
+
         return `
-            <div class="reply-item" data-comment-id="${reply.id}">
+            <div class="reply-item" data-comment-id="${reply.id}" data-user-id="${reply.userId}">
                 <div class="comment-header">
                     <div class="comment-user-info">
-                        <img src="images/avatar.jpg" alt="用户头像" class="comment-user-avatar">
+                        <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.src='images/avatar.jpg'">
                         <span class="comment-username ${isCurrentUserReply ? 'current-user' : ''}">${escapeHtml(displayName)}</span>
                         ${isCurrentUserReply ? '<span class="user-badge">我</span>' : ''}
                     </div>
@@ -941,6 +952,9 @@ $(document).ready(function() {
         // 显示当前登录用户的信息（回复者）
         const currentUserName = currentUser.realName || currentUser.username;
         $('.reply-user-name').text(currentUserName);
+
+        // 更新回复模态框中的用户头像
+        AvatarUtils.updateReplyModalAvatar(currentUser.id);
 
         // 获取原评论内容
         const commentElement = $(`.comment-item[data-comment-id="${commentId}"]`);
@@ -1134,8 +1148,12 @@ $(document).ready(function() {
 
         if (currentUser) {
             commentUserName.text(currentUser.realName || currentUser.username);
+            // 更新评论输入框头像
+            AvatarUtils.updateCommentInputAvatar(currentUser.id);
         } else {
             commentUserName.text('请先登录后发表评论');
+            // 使用默认头像
+            AvatarUtils.updateCommentInputAvatar(null);
         }
     }
 
