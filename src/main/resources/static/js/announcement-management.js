@@ -6,7 +6,6 @@ $(document).ready(function() {
     let currentStatus = '';
     let currentType = '';
     let currentKeyword = '';
-    let quillEditor = null;
     let editingId = null;
     let isInitialized = false;
     let currentUser = null; // 存储当前用户信息
@@ -73,16 +72,8 @@ $(document).ready(function() {
             return;
         }
 
-        // 初始化富文本编辑器（仅在有编辑权限时）
-        if (user && (user.role === 'ADMIN' || user.role === 'TEACHER')) {
-            try {
-                initQuillEditor();
-            } catch (e) {
-                console.warn('富文本编辑器初始化失败:', e);
-            }
-        } else {
-            console.log('无编辑权限，跳过富文本编辑器初始化');
-        }
+        // 设置当前用户信息
+        currentUser = user;
 
         // 绑定事件
         bindEvents(user);
@@ -93,24 +84,6 @@ $(document).ready(function() {
     }
 
     // 删除了未使用的测试数据函数、重定向函数和访问拒绝函数
-    
-    function initQuillEditor() {
-        quillEditor = new Quill('#editor-container', {
-            theme: 'snow',
-            placeholder: '请输入公告内容...',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'align': [] }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
-            }
-        });
-    }
     
     function bindEvents(user) {
         // 基础功能：刷新和筛选（所有用户都可以使用）
@@ -138,8 +111,14 @@ $(document).ready(function() {
             console.log('绑定编辑功能事件');
 
             // 操作按钮
-            $('#add-announcement-btn').click(() => showAnnouncementModal('ANNOUNCEMENT'));
-            $('#add-activity-btn').click(() => showAnnouncementModal('ACTIVITY'));
+            $('#add-announcement-btn').click(() => {
+                console.log('新建公告按钮被点击');
+                showAnnouncementModal('ANNOUNCEMENT');
+            });
+            $('#add-activity-btn').click(() => {
+                console.log('新建活动按钮被点击');
+                showAnnouncementModal('ACTIVITY');
+            });
 
             // 表单提交
             $('#announcement-form').submit(handleFormSubmit);
@@ -154,8 +133,12 @@ $(document).ready(function() {
             });
         } else {
             console.log('无编辑权限，隐藏编辑按钮');
+            console.log('当前用户信息:', currentUser);
             // 隐藏编辑相关的按钮
             $('#add-announcement-btn, #add-activity-btn').hide();
+
+            // 显示权限提示
+            showMessage('您需要管理员或教师权限才能创建公告', 'warning');
         }
     }
     
@@ -526,29 +509,94 @@ $(document).ready(function() {
     }
     
     function showAnnouncementModal(type = 'ANNOUNCEMENT') {
+        console.log('showAnnouncementModal 被调用，类型:', type);
+        console.log('当前用户:', currentUser);
+
         // 检查权限
         if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER')) {
+            console.log('权限检查失败');
             showMessage('您没有权限创建公告', 'error');
             return;
         }
 
+        console.log('权限检查通过，开始显示模态框');
         editingId = null;
-        $('#modal-title').text(type === 'ACTIVITY' ? '新建活动' : '新建公告');
+
+        // 设置模态框标题和图标
+        const isActivity = type === 'ACTIVITY';
+        const titleText = isActivity ? '新建活动' : '新建公告';
+
+        $('#modal-title').text(titleText);
+        $('.modal-icon').removeClass('fa-edit fa-eye').addClass('fa-edit');
+
+        // 重置表单
         $('#announcement-form')[0].reset();
         $('#announcement-type').val(type);
         $('#announcement-status').val('DRAFT');
 
-        // 只有在富文本编辑器存在时才设置内容
-        if (quillEditor) {
-            quillEditor.setContents([]);
-        }
+        // 确保表单可编辑
+        setFormEditableState(true);
 
         // 设置默认发布时间为当前时间
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         $('#publish-time').val(localDateTime);
 
-        $('#announcement-modal').show();
+        // 设置默认发布者
+        if (currentUser) {
+            $('#announcement-publisher').val(currentUser.realName || currentUser.username);
+        }
+
+        console.log('准备显示模态框');
+        const modal = $('#announcement-modal');
+        console.log('模态框元素:', modal.length > 0 ? '找到' : '未找到');
+
+        if (modal.length > 0) {
+            // 添加显示动画
+            modal.addClass('show').css('display', 'flex');
+            console.log('模态框显示命令已执行');
+
+            // 聚焦到标题输入框
+            setTimeout(() => {
+                $('#announcement-title').focus();
+            }, 300);
+        } else {
+            console.error('未找到模态框元素 #announcement-modal');
+        }
+    }
+
+    // 设置表单可编辑状态
+    function setFormEditableState(editable) {
+        const formElements = $('#announcement-form input, #announcement-form select, #announcement-form textarea');
+        const saveButtons = $('#save-draft-btn, button[type="submit"]');
+
+        if (editable) {
+            formElements.prop('disabled', false).removeClass('readonly');
+            saveButtons.show();
+            $('.modal-footer .btn-secondary').text('取消');
+        } else {
+            formElements.prop('disabled', true).addClass('readonly');
+            saveButtons.hide();
+            $('.modal-footer .btn-secondary').text('关闭');
+        }
+
+        // 特殊处理复选框
+        $('#is-important').prop('disabled', !editable);
+
+        // 更新样式
+        if (!editable) {
+            formElements.css({
+                'background-color': '#f8f9fa',
+                'border-color': '#e9ecef',
+                'color': '#6c757d'
+            });
+        } else {
+            formElements.css({
+                'background-color': '',
+                'border-color': '',
+                'color': ''
+            });
+        }
     }
     
     function handleFormSubmit(e) {
@@ -565,9 +613,16 @@ $(document).ready(function() {
             return;
         }
 
-        // 获取富文本编辑器内容
-        const content = quillEditor ? quillEditor.root.innerHTML : $('#announcement-content').val();
-        $('#announcement-content').val(content);
+        // 获取纯文本内容
+        const content = $('#announcement-content').val().trim();
+
+        console.log('保存内容:', content);
+
+        // 确保内容不为空
+        if (!content) {
+            showMessage('请输入公告内容', 'error');
+            return;
+        }
 
         // 设置状态
         $('#announcement-status').val(status);
@@ -605,7 +660,17 @@ $(document).ready(function() {
     }
     
     function closeModal() {
-        $('.modal').hide();
+        const modal = $('.modal');
+        modal.removeClass('show');
+
+        // 添加关闭动画
+        setTimeout(() => {
+            modal.hide();
+            // 重置表单状态
+            setFormEditableState(true);
+            // 清空表单内容
+            $('#announcement-form')[0].reset();
+        }, 300);
     }
     
     function showLoading() {
@@ -693,13 +758,19 @@ $(document).ready(function() {
     
     // 全局函数（供HTML调用）
     window.editAnnouncement = function(id) {
-        editingId = id;
+        // 检查编辑权限
+        const canEdit = currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'TEACHER');
+        editingId = canEdit ? id : null;
 
         $.ajax({
             url: `/api/announcements/${id}`,
             method: 'GET',
             success: function(data) {
-                $('#modal-title').text('编辑' + getTypeDisplayName(data.type));
+                // 设置模态框标题和图标
+                const titleText = canEdit ? '编辑' + getTypeDisplayName(data.type) : '查看' + getTypeDisplayName(data.type);
+                $('#modal-title').text(titleText);
+                $('.modal-icon').removeClass('fa-edit fa-eye').addClass(canEdit ? 'fa-edit' : 'fa-eye');
+
                 $('#announcement-id').val(data.id);
                 $('#announcement-title').val(data.title);
                 $('#announcement-type').val(data.type);
@@ -721,10 +792,20 @@ $(document).ready(function() {
                     $('#deadline-time').val(localDateTime);
                 }
 
-                // 设置富文本内容
-                quillEditor.root.innerHTML = data.content;
+                // 设置内容
+                $('#announcement-content').val(data.content || '');
 
-                $('#announcement-modal').show();
+                // 设置表单编辑状态
+                setFormEditableState(canEdit);
+
+                // 显示模态框
+                const modal = $('#announcement-modal');
+                modal.addClass('show').css('display', 'flex');
+
+                // 如果不能编辑，显示提示信息
+                if (!canEdit) {
+                    showMessage('您只有查看权限，无法编辑此公告', 'info');
+                }
             },
             error: function(xhr, status, error) {
                 showMessage('加载公告数据失败', 'error');

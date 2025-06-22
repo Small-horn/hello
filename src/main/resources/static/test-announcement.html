@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告管理测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+        .info-box {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>公告管理功能测试</h1>
+        
+        <div class="info-box">
+            <h3>当前登录状态</h3>
+            <div id="login-status">检查中...</div>
+        </div>
+        
+        <div class="info-box">
+            <h3>测试按钮</h3>
+            <button id="test-add-announcement" class="btn">测试新建公告按钮</button>
+            <button id="test-add-activity" class="btn btn-success">测试新建活动按钮</button>
+            <button id="check-modal" class="btn">检查模态框</button>
+        </div>
+        
+        <div class="info-box">
+            <h3>测试结果</h3>
+            <div id="test-results"></div>
+        </div>
+        
+        <div class="info-box">
+            <h3>快速登录</h3>
+            <button id="quick-login-admin" class="btn">登录为管理员</button>
+            <button id="quick-login-teacher" class="btn">登录为教师</button>
+            <a href="announcement-management.html" class="btn btn-success">前往公告管理页面</a>
+        </div>
+    </div>
+
+    <!-- 测试模态框 -->
+    <div id="test-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>测试模态框</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>这是一个测试模态框，用于验证模态框功能是否正常。</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 检查登录状态
+            checkLoginStatus();
+            
+            // 绑定测试按钮事件
+            $('#test-add-announcement').click(function() {
+                testAnnouncementModal('ANNOUNCEMENT');
+            });
+            
+            $('#test-add-activity').click(function() {
+                testAnnouncementModal('ACTIVITY');
+            });
+            
+            $('#check-modal').click(function() {
+                $('#test-modal').show();
+            });
+            
+            // 关闭模态框
+            $('.modal-close').click(function() {
+                $('.modal').hide();
+            });
+            
+            $('.modal').click(function(e) {
+                if (e.target === this) {
+                    $(this).hide();
+                }
+            });
+            
+            // 快速登录
+            $('#quick-login-admin').click(function() {
+                quickLogin('admin', '123');
+            });
+            
+            $('#quick-login-teacher').click(function() {
+                quickLogin('teacher1', '123');
+            });
+        });
+        
+        function checkLoginStatus() {
+            $.ajax({
+                url: '/api/auth/current',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.authenticated) {
+                        const user = response.user;
+                        $('#login-status').html(`
+                            <span class="success">已登录</span><br>
+                            用户名: ${user.username}<br>
+                            角色: ${user.role}<br>
+                            姓名: ${user.realName || '未设置'}
+                        `);
+                    } else {
+                        $('#login-status').html('<span class="error">未登录</span>');
+                    }
+                },
+                error: function() {
+                    $('#login-status').html('<span class="error">检查失败</span>');
+                }
+            });
+        }
+        
+        function testAnnouncementModal(type) {
+            const results = $('#test-results');
+            results.append(`<p>测试${type === 'ACTIVITY' ? '活动' : '公告'}模态框...</p>`);
+            
+            // 检查当前用户
+            $.ajax({
+                url: '/api/auth/current',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.authenticated) {
+                        const user = response.user;
+                        if (user.role === 'ADMIN' || user.role === 'TEACHER') {
+                            results.append(`<p class="success">权限检查通过，用户角色: ${user.role}</p>`);
+                            // 尝试显示模态框
+                            showTestModal(type);
+                        } else {
+                            results.append(`<p class="error">权限不足，用户角色: ${user.role}</p>`);
+                        }
+                    } else {
+                        results.append('<p class="error">用户未登录</p>');
+                    }
+                },
+                error: function() {
+                    results.append('<p class="error">权限检查失败</p>');
+                }
+            });
+        }
+        
+        function showTestModal(type) {
+            const results = $('#test-results');
+            results.append(`<p>尝试显示${type === 'ACTIVITY' ? '活动' : '公告'}模态框...</p>`);
+            
+            // 检查页面上是否有公告模态框
+            if ($('#announcement-modal').length > 0) {
+                results.append('<p class="success">找到公告模态框元素</p>');
+                $('#announcement-modal').show();
+                results.append('<p class="success">模态框显示命令已执行</p>');
+            } else {
+                results.append('<p class="error">未找到公告模态框元素</p>');
+                // 显示测试模态框代替
+                $('#test-modal').show();
+                results.append('<p>显示测试模态框代替</p>');
+            }
+        }
+        
+        function quickLogin(username, password) {
+            const results = $('#test-results');
+            results.append(`<p>尝试登录用户: ${username}</p>`);
+            
+            $.ajax({
+                url: '/api/auth/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        results.append(`<p class="success">登录成功: ${response.user.realName}</p>`);
+                        checkLoginStatus();
+                    } else {
+                        results.append(`<p class="error">登录失败: ${response.message}</p>`);
+                    }
+                },
+                error: function() {
+                    results.append('<p class="error">登录请求失败</p>');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
