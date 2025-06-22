@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>校园公告 - 浪无双</title>
+    <title>校园公告/活动 - 浪无双</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/announcements.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <!-- 侧边栏导航 -->
     <nav id="sidebar">
@@ -20,7 +22,7 @@
         </div>
         <ul class="nav-links">
             <li><a href="dashboard.html"><i class="fas fa-home"></i> 首页</a></li>
-            <li><a href="announcements.html" class="active"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
+            <li><a href="announcements.html" class="active"><i class="fas fa-bullhorn"></i> 校园公告/活动</a></li>
             <li><a href="activity-management.html"><i class="fas fa-calendar-check"></i> 活动管理</a></li>
             <li><a href="favorites.html"><i class="fas fa-star"></i> 我的收藏</a></li>
             <li><a href="announcement-management.html"><i class="fas fa-cogs"></i> 公告管理</a></li>
@@ -45,39 +47,9 @@
         <div class="announcements-header">
             <h1 class="page-title">
                 <i class="fas fa-bullhorn"></i>
-                <span id="page-title-text">校园公告</span>
+                <span id="page-title-text">校园公告/活动</span>
             </h1>
             <p class="page-description">查看最新的校园公告和活动信息</p>
-            
-            <!-- 筛选和搜索区域 -->
-            <div class="filter-section">
-                <div class="filter-controls">
-                    <div class="filter-group">
-                        <label for="type-filter">类型筛选：</label>
-                        <select id="type-filter" class="filter-select">
-                            <option value="">全部</option>
-                            <option value="ANNOUNCEMENT">公告</option>
-                            <option value="ACTIVITY">活动</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="importance-filter">重要性：</label>
-                        <select id="importance-filter" class="filter-select">
-                            <option value="">全部</option>
-                            <option value="true">重要</option>
-                            <option value="false">普通</option>
-                        </select>
-                    </div>
-                    
-                    <div class="search-group">
-                        <input type="text" id="search-input" placeholder="搜索公告标题或内容..." class="search-input">
-                        <button id="search-btn" class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- 重要公告区域 -->
@@ -90,11 +62,13 @@
             </div>
         </div>
 
+
+
         <!-- 公告列表区域 -->
         <div class="announcements-section">
             <div class="section-header">
                 <h2 class="section-title">
-                    <i class="fas fa-list"></i> 
+                    <i class="fas fa-list"></i>
                     <span id="section-title-text">所有公告</span>
                 </h2>
                 <div class="sort-controls">
@@ -106,7 +80,35 @@
                     </select>
                 </div>
             </div>
-            
+
+            <!-- 筛选和搜索区域 -->
+            <div class="filter-section">
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="type-filter">类型筛选：</label>
+                        <select id="type-filter" class="filter-select">
+                            <option value="">全部</option>
+                            <option value="ANNOUNCEMENT">公告</option>
+                            <option value="ACTIVITY">活动</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="importance-filter">重要性：</label>
+                        <select id="importance-filter" class="filter-select">
+                            <option value="">全部</option>
+                            <option value="true">重要</option>
+                            <option value="false">普通</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="search-input" placeholder="搜索公告标题或内容..." class="search-input">
+                        <button id="search-btn" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <!-- 加载状态 -->
             <div id="loading" class="loading-container" style="display: none;">
                 <div class="loading-spinner">
@@ -114,17 +116,17 @@
                     <span>加载中...</span>
                 </div>
             </div>
-            
+
             <!-- 公告卡片容器 -->
             <div id="announcements-container" class="announcements-grid">
                 <!-- 公告卡片将通过JavaScript动态加载 -->
             </div>
-            
+
             <!-- 分页控件 -->
             <div id="pagination" class="pagination-container">
                 <!-- 分页按钮将通过JavaScript动态生成 -->
             </div>
-            
+
             <!-- 空状态提示 -->
             <div id="empty-state" class="empty-state" style="display: none;">
                 <div class="empty-icon">
@@ -143,4 +145,5 @@
     <script src="js/avatar-utils.js"></script>
     <script src="js/announcements.js"></script>
 </body>
+
 </html>
