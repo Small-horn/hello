@@ -9,6 +9,7 @@ $(document).ready(function() {
     let quillEditor = null;
     let editingId = null;
     let isInitialized = false;
+    let currentUser = null; // 存储当前用户信息
 
     console.log('公告管理页面开始加载...');
 
@@ -19,41 +20,28 @@ $(document).ready(function() {
     }, 500);
 
     function checkPermissionAndInit() {
-        console.log('开始权限检查...');
+        console.log('开始简化的初始化流程...');
 
+        // 简化权限检查，直接初始化页面
         $.ajax({
             url: '/api/auth/current',
             method: 'GET',
-            timeout: 5000,
+            timeout: 3000,
             success: function(response) {
                 console.log('权限检查响应:', response);
+                currentUser = response.success && response.authenticated ? response.user : null;
+                init(currentUser);
 
-                if (response.success && response.authenticated) {
-                    const user = response.user;
-                    console.log('用户已登录:', user.username, '角色:', user.role);
-
-                    if (user.role === 'ADMIN' || user.role === 'TEACHER') {
-                        // 有权限，初始化页面
-                        console.log('用户有权限，开始初始化页面');
-                        init(user);
-                    } else {
-                        // 无权限，但仍然初始化页面（只是显示权限不足信息）
-                        console.log('用户权限不足，但仍初始化页面');
-                        init(user);
-                        showMessage('您的权限不足，只能查看数据', 'warning');
-                    }
-                } else {
-                    // 未登录，但仍然尝试初始化页面
-                    console.log('用户未登录，但仍尝试初始化页面');
-                    init(null);
-                    showMessage('您未登录，功能受限', 'warning');
+                if (!currentUser) {
+                    showMessage('未登录，功能受限', 'warning');
+                } else if (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER') {
+                    showMessage('权限不足，只能查看数据', 'warning');
                 }
             },
             error: function(xhr, status, error) {
-                // 检查失败，但仍然尝试初始化页面
-                console.log('权限检查失败，但仍尝试初始化页面:', error);
+                console.log('权限检查失败，直接初始化页面:', error);
                 init(null);
-                showMessage('权限检查失败，但仍可查看数据', 'warning');
+                showMessage('权限检查失败，功能受限', 'warning');
             }
         });
     }
@@ -80,73 +68,26 @@ $(document).ready(function() {
             return;
         }
 
-        // 初始化富文本编辑器
-        try {
-            initQuillEditor();
-        } catch (e) {
-            console.warn('富文本编辑器初始化失败:', e);
+        // 初始化富文本编辑器（仅在有编辑权限时）
+        if (user && (user.role === 'ADMIN' || user.role === 'TEACHER')) {
+            try {
+                initQuillEditor();
+            } catch (e) {
+                console.warn('富文本编辑器初始化失败:', e);
+            }
+        } else {
+            console.log('无编辑权限，跳过富文本编辑器初始化');
         }
 
         // 绑定事件
-        bindEvents();
+        bindEvents(user);
 
         // 直接加载数据，不添加测试数据
         console.log('开始加载公告数据...');
         loadAnnouncements();
     }
 
-    // 添加测试数据函数
-    function addTestData() {
-        console.log('添加测试数据...');
-        const tbody = $('#announcements-tbody');
-
-        if (tbody.length === 0) {
-            console.error('找不到表格tbody元素');
-            return;
-        }
-
-        const testData = {
-            content: [
-                {
-                    id: 999,
-                    title: '测试公告标题',
-                    type: 'ANNOUNCEMENT',
-                    status: 'PUBLISHED',
-                    publisher: '测试用户',
-                    publishTime: '2025-06-22T14:30:00',
-                    viewCount: 123,
-                    isImportant: true
-                }
-            ],
-            totalElements: 1,
-            totalPages: 1,
-            number: 0
-        };
-
-        console.log('渲染测试数据...');
-        renderAnnouncementsTable(testData);
-    }
-
-    function redirectToLogin() {
-        sessionStorage.setItem('redirectUrl', window.location.href);
-        window.location.href = 'index.html';
-    }
-
-    function showAccessDenied() {
-        $('main#content').html(`
-            <div class="access-denied" style="text-align: center; padding: 50px;">
-                <div class="access-denied-icon" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;">
-                    <i class="fas fa-ban"></i>
-                </div>
-                <h1>访问被拒绝</h1>
-                <p>您没有权限访问公告管理功能，需要管理员或教师权限。</p>
-                <div class="access-denied-actions" style="margin-top: 30px;">
-                    <button onclick="history.back()" class="btn btn-secondary">返回上页</button>
-                    <button onclick="window.location.href='index.html'" class="btn btn-primary">重新登录</button>
-                </div>
-            </div>
-        `);
-    }
+    // 删除了未使用的测试数据函数、重定向函数和访问拒绝函数
     
     function initQuillEditor() {
         quillEditor = new Quill('#editor-container', {
@@ -166,12 +107,10 @@ $(document).ready(function() {
         });
     }
     
-    function bindEvents() {
-        // 操作按钮
-        $('#add-announcement-btn').click(() => showAnnouncementModal('ANNOUNCEMENT'));
-        $('#add-activity-btn').click(() => showAnnouncementModal('ACTIVITY'));
+    function bindEvents(user) {
+        // 基础功能：刷新和筛选（所有用户都可以使用）
         $('#refresh-btn').click(() => loadAnnouncements());
-        
+
         // 筛选器
         $('#status-filter, #type-filter').change(() => {
             currentStatus = $('#status-filter').val();
@@ -179,24 +118,37 @@ $(document).ready(function() {
             currentPage = 0;
             loadAnnouncements();
         });
-        
+
         // 搜索
         $('#search-btn').click(performSearch);
         $('#search-input').keypress(function(e) {
             if (e.which === 13) performSearch();
         });
-        
-        // 表单提交
-        $('#announcement-form').submit(handleFormSubmit);
-        
-        // 保存草稿
-        $('#save-draft-btn').click(() => saveAnnouncement('DRAFT'));
-        
-        // 模态框关闭
-        $('.modal-close').click(closeModal);
-        $('.modal').click(function(e) {
-            if (e.target === this) closeModal();
-        });
+
+        // 编辑功能（仅管理员和教师可用）
+        if (user && (user.role === 'ADMIN' || user.role === 'TEACHER')) {
+            console.log('绑定编辑功能事件');
+
+            // 操作按钮
+            $('#add-announcement-btn').click(() => showAnnouncementModal('ANNOUNCEMENT'));
+            $('#add-activity-btn').click(() => showAnnouncementModal('ACTIVITY'));
+
+            // 表单提交
+            $('#announcement-form').submit(handleFormSubmit);
+
+            // 保存草稿
+            $('#save-draft-btn').click(() => saveAnnouncement('DRAFT'));
+
+            // 模态框关闭
+            $('.modal-close').click(closeModal);
+            $('.modal').click(function(e) {
+                if (e.target === this) closeModal();
+            });
+        } else {
+            console.log('无编辑权限，隐藏编辑按钮');
+            // 隐藏编辑相关的按钮
+            $('#add-announcement-btn, #add-activity-btn').hide();
+        }
     }
     
     function performSearch() {
@@ -315,26 +267,43 @@ $(document).ready(function() {
                 <td>${announcement.viewCount}</td>
                 <td>
                     <div class="action-buttons">
-                        <button class="action-btn edit" onclick="editAnnouncement(${announcement.id})">
-                            <i class="fas fa-edit"></i> 编辑
-                        </button>
-                        ${announcement.status === 'DRAFT' ? 
-                            `<button class="action-btn publish" onclick="publishAnnouncement(${announcement.id})">
-                                <i class="fas fa-upload"></i> 发布
-                            </button>` : 
-                            `<button class="action-btn unpublish" onclick="unpublishAnnouncement(${announcement.id})">
-                                <i class="fas fa-download"></i> 取消发布
-                            </button>`
-                        }
-                        <button class="action-btn delete" onclick="deleteAnnouncement(${announcement.id}, '${escapeHtml(announcement.title)}')">
-                            <i class="fas fa-trash"></i> 删除
-                        </button>
+                        ${getActionButtons(announcement)}
                     </div>
                 </td>
             </tr>
         `);
     }
-    
+
+    // 根据用户权限生成操作按钮
+    function getActionButtons(announcement) {
+        // 如果用户没有编辑权限，只显示查看按钮
+        if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER')) {
+            return `
+                <button class="action-btn view" onclick="viewAnnouncement(${announcement.id})">
+                    <i class="fas fa-eye"></i> 查看
+                </button>
+            `;
+        }
+
+        // 有编辑权限，显示完整的操作按钮
+        return `
+            <button class="action-btn edit" onclick="editAnnouncement(${announcement.id})">
+                <i class="fas fa-edit"></i> 编辑
+            </button>
+            ${announcement.status === 'DRAFT' ?
+                `<button class="action-btn publish" onclick="publishAnnouncement(${announcement.id})">
+                    <i class="fas fa-upload"></i> 发布
+                </button>` :
+                `<button class="action-btn unpublish" onclick="unpublishAnnouncement(${announcement.id})">
+                    <i class="fas fa-download"></i> 取消发布
+                </button>`
+            }
+            <button class="action-btn delete" onclick="deleteAnnouncement(${announcement.id}, '${escapeHtml(announcement.title)}')">
+                <i class="fas fa-trash"></i> 删除
+            </button>
+        `;
+    }
+
     function renderPagination(data) {
         const container = $('#pagination');
         const totalPages = data.totalPages;
@@ -395,18 +364,28 @@ $(document).ready(function() {
     }
     
     function showAnnouncementModal(type = 'ANNOUNCEMENT') {
+        // 检查权限
+        if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER')) {
+            showMessage('您没有权限创建公告', 'error');
+            return;
+        }
+
         editingId = null;
         $('#modal-title').text(type === 'ACTIVITY' ? '新建活动' : '新建公告');
         $('#announcement-form')[0].reset();
         $('#announcement-type').val(type);
         $('#announcement-status').val('DRAFT');
-        quillEditor.setContents([]);
-        
+
+        // 只有在富文本编辑器存在时才设置内容
+        if (quillEditor) {
+            quillEditor.setContents([]);
+        }
+
         // 设置默认发布时间为当前时间
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         $('#publish-time').val(localDateTime);
-        
+
         $('#announcement-modal').show();
     }
     
@@ -418,10 +397,16 @@ $(document).ready(function() {
     }
     
     function saveAnnouncement(status) {
+        // 检查权限
+        if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER')) {
+            showMessage('您没有权限保存公告', 'error');
+            return;
+        }
+
         // 获取富文本编辑器内容
-        const content = quillEditor.root.innerHTML;
+        const content = quillEditor ? quillEditor.root.innerHTML : $('#announcement-content').val();
         $('#announcement-content').val(content);
-        
+
         // 设置状态
         $('#announcement-status').val(status);
         
@@ -634,6 +619,11 @@ $(document).ready(function() {
             });
         });
         $('#delete-modal').show();
+    };
+
+    // 查看公告（只读模式）
+    window.viewAnnouncement = function(id) {
+        window.location.href = `announcement-detail.html?id=${id}`;
     };
 
     window.showAnnouncementModal = showAnnouncementModal;

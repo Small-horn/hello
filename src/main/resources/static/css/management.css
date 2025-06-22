@@ -168,26 +168,6 @@
     color: #388e3c;
 }
 
-.type-badge.admin {
-    background: #ffebee;
-    color: #c62828;
-}
-
-.type-badge.teacher {
-    background: #e8f5e8;
-    color: #2e7d32;
-}
-
-.type-badge.student {
-    background: #e3f2fd;
-    color: #1565c0;
-}
-
-.type-badge.guest {
-    background: #f3e5f5;
-    color: #7b1fa2;
-}
-
 /* 操作按钮 */
 .action-buttons {
     display: flex;
@@ -436,104 +416,9 @@
     word-break: break-word;
 }
 
-.management-table .date-cell {
-    font-family: 'Courier New', monospace;
-    font-size: 0.85rem;
-}
-
-.management-table .number-cell {
-    text-align: right;
-    font-family: 'Courier New', monospace;
-}
-
-/* 批量操作 */
-.bulk-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.bulk-actions input[type="checkbox"] {
-    margin-right: 0.5rem;
-}
-
-.bulk-actions .selected-count {
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-/* 搜索高亮 */
-.search-highlight {
-    background: #fff3cd;
-    padding: 0.1rem 0.2rem;
-    border-radius: 2px;
-}
-
-/* 加载状态覆盖 */
-.table-loading {
-    position: relative;
-}
-
-.table-loading::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-}
-
-/* 排序指示器 */
-.sortable {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-}
-
-.sortable:hover {
-    background: #e9ecef;
-}
-
-.sortable::after {
-    content: '↕';
-    position: absolute;
-    right: 0.5rem;
-    opacity: 0.5;
-}
-
-.sortable.asc::after {
-    content: '↑';
-    opacity: 1;
-}
-
-.sortable.desc::after {
-    content: '↓';
-    opacity: 1;
-}
-
 /* 角色权限样式 */
 .admin-only {
     border-left: 3px solid #dc3545;
-}
-
-.teacher-only {
-    border-left: 3px solid #28a745;
-}
-
-.student-only {
-    border-left: 3px solid #007bff;
-}
-
-.guest-only {
-    border-left: 3px solid #6c757d;
 }
 
 /* 数据统计卡片 */
@@ -600,49 +485,4 @@
     font-size: 0.9rem;
     color: #6c757d;
     font-weight: 500;
-}
-
-.stats-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    border-top: 3px solid var(--primary-color);
-}
-
-.stats-card .stats-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-.stats-card .stats-label {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-/* 导出功能 */
-.export-options {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.export-format {
-    padding: 0.3rem 0.6rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.export-format:hover {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
 }
