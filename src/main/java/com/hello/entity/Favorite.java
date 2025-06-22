@@ -1,5 +1,6 @@
 package com.hello.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -24,10 +25,12 @@ public class Favorite {
     private LocalDateTime createdAt;
     
     // 关联映射
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
-    
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "announcement_id", insertable = false, updatable = false)
     private Announcement announcement;

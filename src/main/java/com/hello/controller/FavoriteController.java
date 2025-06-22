@@ -1,19 +1,27 @@
 package com.hello.controller;
 
 import com.hello.entity.Favorite;
+import com.hello.entity.Announcement;
 import com.hello.service.FavoriteService;
+import com.hello.service.AnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 收藏控制器 - 提供RESTful API
@@ -22,9 +30,12 @@ import java.util.Optional;
 @RequestMapping("/api/favorites")
 @CrossOrigin(origins = "*")
 public class FavoriteController {
-    
+
     @Autowired
     private FavoriteService favoriteService;
+
+    @Autowired
+    private AnnouncementService announcementService;
     
     /**
      * 收藏或取消收藏公告
@@ -273,6 +284,115 @@ public class FavoriteController {
             return favorite.map(ResponseEntity::ok)
                           .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * 获取用户收藏的公告详情列表（分页）
+     * GET /api/favorites/user/{userId}/announcements/details?page=0&size=12&sort=createdAt&type=ANNOUNCEMENT
+     */
+    @GetMapping("/user/{userId}/announcements/details")
+    public ResponseEntity<Page<Map<String, Object>>> getUserFavoriteAnnouncements(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "createdAt") String sort,
+            @RequestParam(required = false) String type) {
+        try {
+            // 创建分页和排序参数
+            Sort.Direction direction = Sort.Direction.DESC;
+            Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
+
+            // 获取用户的收藏列表
+            Page<Favorite> favoritePage = favoriteService.getUserFavorites(userId, page, size);
+
+            // 获取收藏的公告ID列表
+            List<Long> announcementIds = favoritePage.getContent().stream()
+                    .map(Favorite::getAnnouncementId)
+                    .collect(Collectors.toList());
+
+            if (announcementIds.isEmpty()) {
+                return ResponseEntity.ok(new PageImpl<>(List.of(), pageable, 0));
+            }
+
+            // 获取公告详情
+            List<Announcement> allAnnouncements = announcementService.getAnnouncementsByIds(announcementIds);
+
+            // 构建返回数据，包含收藏信息和公告详情
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (Favorite favorite : favoritePage.getContent()) {
+                // 查找对应的公告详情
+                Optional<Announcement> announcementOpt = allAnnouncements.stream()
+                        .filter(announcement -> announcement.getId().equals(favorite.getAnnouncementId()))
+                        .findFirst();
+
+                if (announcementOpt.isPresent()) {
+                    Announcement announcement = announcementOpt.get();
+
+                    // 按类型筛选
+                    if (type == null || type.isEmpty() || type.equals(announcement.getType().toString())) {
+                        Map<String, Object> item = new HashMap<>();
+                        item.put("id", favorite.getId());
+                        item.put("userId", favorite.getUserId());
+                        item.put("announcementId", favorite.getAnnouncementId());
+                        item.put("createdAt", favorite.getCreatedAt());
+                        item.put("announcement", announcement);
+                        result.add(item);
+                    }
+                }
+            }
+
+            // 重新计算分页信息
+            long filteredTotal = result.size();
+            Page<Map<String, Object>> resultPage = new PageImpl<>(result, pageable, favoritePage.getTotalElements());
+
+            return ResponseEntity.ok(resultPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * 获取用户收藏统计信息
+     * GET /api/favorites/user/{userId}/stats
+     */
+    @GetMapping("/user/{userId}/stats")
+    public ResponseEntity<Map<String, Object>> getUserFavoriteStats(@PathVariable Long userId) {
+        try {
+            // 获取用户所有收藏
+            List<Long> announcementIds = favoriteService.getUserFavoriteAnnouncementIds(userId);
+
+            if (announcementIds.isEmpty()) {
+                Map<String, Object> stats = new HashMap<>();
+                stats.put("total", 0);
+                stats.put("announcements", 0);
+                stats.put("activities", 0);
+                return ResponseEntity.ok(stats);
+            }
+
+            // 获取公告详情
+            List<Announcement> announcements = announcementService.getAnnouncementsByIds(announcementIds);
+
+            // 统计各类型数量
+            long totalCount = announcements.size();
+            long announcementCount = announcements.stream()
+                    .filter(announcement -> "ANNOUNCEMENT".equals(announcement.getType().toString()))
+                    .count();
+            long activityCount = announcements.stream()
+                    .filter(announcement -> "ACTIVITY".equals(announcement.getType().toString()))
+                    .count();
+
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("total", totalCount);
+            stats.put("announcements", announcementCount);
+            stats.put("activities", activityCount);
+
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

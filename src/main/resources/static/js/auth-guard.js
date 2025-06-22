@@ -5,6 +5,7 @@ $(document).ready(function() {
         'dashboard.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
         'announcements.html': { requireAuth: false, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
         'announcement-detail.html': { requireAuth: false, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
+        'favorites.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
         'announcement-management.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER'] },
         'user-management.html': { requireAuth: true, roles: ['ADMIN'] },
         'about.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },

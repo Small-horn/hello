@@ -110,7 +110,13 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * 根据发布时间范围查找公告/活动
      */
     @Query("SELECT a FROM Announcement a WHERE a.status = 'PUBLISHED' AND a.publishTime BETWEEN :startTime AND :endTime ORDER BY a.publishTime DESC")
-    Page<Announcement> findByPublishTimeBetween(@Param("startTime") LocalDateTime startTime, 
-                                              @Param("endTime") LocalDateTime endTime, 
+    Page<Announcement> findByPublishTimeBetween(@Param("startTime") LocalDateTime startTime,
+                                              @Param("endTime") LocalDateTime endTime,
                                               Pageable pageable);
+
+    /**
+     * 根据ID列表查找公告/活动
+     */
+    @Query("SELECT a FROM Announcement a WHERE a.id IN :ids ORDER BY a.publishTime DESC")
+    List<Announcement> findByIdIn(@Param("ids") List<Long> ids);
 }

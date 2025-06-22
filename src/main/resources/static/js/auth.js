@@ -167,10 +167,17 @@ $(document).ready(function() {
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
                     showMessage('登录成功，正在跳转...', 'success');
-                    
-                    // 延迟跳转到主页面
+
+                    // 延迟跳转到目标页面
                     setTimeout(function() {
-                        window.location.href = 'dashboard.html';
+                        // 检查是否有保存的重定向URL
+                        const redirectUrl = sessionStorage.getItem('redirectUrl');
+                        if (redirectUrl && redirectUrl !== window.location.href) {
+                            sessionStorage.removeItem('redirectUrl');
+                            window.location.href = redirectUrl;
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
                     }, 1200);
                 } else {
                     showMessage(response.message || '登录失败', 'error');
@@ -198,8 +205,14 @@ $(document).ready(function() {
             method: 'GET',
             success: function(response) {
                 if (response.success && response.authenticated) {
-                    // 已登录，跳转到主页面
-                    window.location.href = 'dashboard.html';
+                    // 已登录，检查是否有重定向URL
+                    const redirectUrl = sessionStorage.getItem('redirectUrl');
+                    if (redirectUrl && redirectUrl !== window.location.href) {
+                        sessionStorage.removeItem('redirectUrl');
+                        window.location.href = redirectUrl;
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
                 } else {
                     // 未登录，显示登录页面
                     loadRememberedUsername();

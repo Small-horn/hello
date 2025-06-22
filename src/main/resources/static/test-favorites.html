@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收藏功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        button { margin: 5px; padding: 10px 15px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>收藏功能测试页面</h1>
+    
+    <div class="test-section">
+        <h3>1. 检查用户登录状态</h3>
+        <button onclick="checkAuth()">检查登录状态</button>
+        <div id="auth-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. 测试收藏统计API</h3>
+        <input type="number" id="user-id" placeholder="用户ID" value="1">
+        <button onclick="testStatsAPI()">测试统计API</button>
+        <div id="stats-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. 测试收藏列表API</h3>
+        <button onclick="testFavoritesAPI()">测试收藏列表API</button>
+        <div id="favorites-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. 测试添加收藏</h3>
+        <input type="number" id="announcement-id" placeholder="公告ID" value="1">
+        <button onclick="testAddFavorite()">添加收藏</button>
+        <div id="add-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>5. 查看数据库数据</h3>
+        <button onclick="checkDatabase()">查看收藏表数据</button>
+        <div id="db-result" class="result"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function checkAuth() {
+            $.ajax({
+                url: '/api/auth/current',
+                method: 'GET',
+                success: function(response) {
+                    $('#auth-result').html(`
+                        <div class="success">认证检查成功</div>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    $('#auth-result').html(`
+                        <div class="error">认证检查失败: ${error}</div>
+                        <pre>${xhr.responseText}</pre>
+                    `);
+                }
+            });
+        }
+        
+        function testStatsAPI() {
+            const userId = $('#user-id').val();
+            $.ajax({
+                url: `/api/favorites/user/${userId}/stats`,
+                method: 'GET',
+                success: function(response) {
+                    $('#stats-result').html(`
+                        <div class="success">统计API成功</div>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    $('#stats-result').html(`
+                        <div class="error">统计API失败: ${error}</div>
+                        <pre>${xhr.responseText}</pre>
+                    `);
+                }
+            });
+        }
+        
+        function testFavoritesAPI() {
+            const userId = $('#user-id').val();
+            $.ajax({
+                url: `/api/favorites/user/${userId}/announcements/details`,
+                method: 'GET',
+                data: { page: 0, size: 10 },
+                success: function(response) {
+                    $('#favorites-result').html(`
+                        <div class="success">收藏列表API成功</div>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    $('#favorites-result').html(`
+                        <div class="error">收藏列表API失败: ${error}</div>
+                        <pre>${xhr.responseText}</pre>
+                    `);
+                }
+            });
+        }
+        
+        function testAddFavorite() {
+            const userId = $('#user-id').val();
+            const announcementId = $('#announcement-id').val();
+            $.ajax({
+                url: '/api/favorites',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userId: parseInt(userId),
+                    announcementId: parseInt(announcementId)
+                }),
+                success: function(response) {
+                    $('#add-result').html(`
+                        <div class="success">添加收藏成功</div>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    $('#add-result').html(`
+                        <div class="error">添加收藏失败: ${error}</div>
+                        <pre>${xhr.responseText}</pre>
+                    `);
+                }
+            });
+        }
+        
+        function checkDatabase() {
+            const userId = $('#user-id').val();
+            $.ajax({
+                url: `/api/favorites/user/${userId}`,
+                method: 'GET',
+                data: { page: 0, size: 10 },
+                success: function(response) {
+                    $('#db-result').html(`
+                        <div class="success">数据库查询成功</div>
+                        <pre>${JSON.stringify(response, null, 2)}</pre>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    $('#db-result').html(`
+                        <div class="error">数据库查询失败: ${error}</div>
+                        <pre>${xhr.responseText}</pre>
+                    `);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

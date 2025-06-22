@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏 - 戴永辉</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/favorites.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 侧边栏导航 -->
+    <nav id="sidebar">
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="images/avatar.jpg" alt="个人头像">
+            </div>
+            <h3 class="name">戴永辉</h3>
+            <p class="profession">嵌入式软件工程师</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="dashboard.html"><i class="fas fa-home"></i> 首页</a></li>
+            <li><a href="announcements.html"><i class="fas fa-bullhorn"></i> 校园公告</a></li>
+            <li><a href="announcements.html?type=activity"><i class="fas fa-calendar-alt"></i> 活动发布</a></li>
+            <li><a href="favorites.html" class="active"><i class="fas fa-star"></i> 我的收藏</a></li>
+            <li><a href="announcement-management.html" class="teacher-only admin-only"><i class="fas fa-cogs"></i> 公告管理</a></li>
+            <li><a href="user-management.html" class="admin-only"><i class="fas fa-users"></i> 用户管理</a></li>
+        </ul>
+        <div class="social-links">
+            <a href="https://github.com/wushuanglang?tab=repositories" target="_blank">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+        <div class="logout-container">
+            <button id="logout-btn" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>退出登录</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 侧边栏导航按钮 -->
+    <button id="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 主要内容区域 -->
+    <main id="content">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-star"></i>
+                    我的收藏
+                </h1>
+                <p class="page-description">查看您收藏的公告和活动</p>
+            </div>
+        </div>
+
+        <!-- 收藏统计 -->
+        <div class="favorites-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="total-favorites">0</h3>
+                    <p>总收藏数</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="announcement-favorites">0</h3>
+                    <p>公告收藏</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="activity-favorites">0</h3>
+                    <p>活动收藏</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选和排序控制 -->
+        <div class="section-header">
+            <div class="filter-controls">
+                <label for="type-filter">类型筛选：</label>
+                <select id="type-filter">
+                    <option value="">全部</option>
+                    <option value="ANNOUNCEMENT">公告</option>
+                    <option value="ACTIVITY">活动</option>
+                </select>
+            </div>
+            <div class="sort-controls">
+                <label for="sort-select">排序方式：</label>
+                <select id="sort-select">
+                    <option value="createdAt">收藏时间</option>
+                    <option value="publishTime">发布时间</option>
+                    <option value="title">标题</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 收藏内容区域 -->
+        <div class="favorites-container">
+            <!-- 加载状态 -->
+            <div id="loading" class="loading-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <p>正在加载收藏内容...</p>
+            </div>
+
+            <!-- 空状态 -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3>暂无收藏内容</h3>
+                <p>您还没有收藏任何公告或活动</p>
+                <a href="announcements.html" class="btn">
+                    <i class="fas fa-bullhorn"></i>
+                    浏览公告
+                </a>
+            </div>
+
+            <!-- 收藏列表 -->
+            <div id="favorites-grid" class="favorites-grid">
+                <!-- 收藏卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 分页控制 -->
+        <div id="pagination-container" class="pagination-container" style="display: none;">
+            <div class="pagination-info">
+                <span id="pagination-info-text">显示第 1-10 条，共 0 条记录</span>
+            </div>
+            <div class="pagination-controls">
+                <button id="prev-page" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                    上一页
+                </button>
+                <div id="page-numbers" class="page-numbers">
+                    <!-- 页码按钮将通过JavaScript动态生成 -->
+                </div>
+                <button id="next-page" class="pagination-btn" disabled>
+                    下一页
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 消息提示 -->
+    <div id="message-container" class="message-container"></div>
+
+    <!-- JavaScript文件 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/favorites.js"></script>
+</body>
+</html>

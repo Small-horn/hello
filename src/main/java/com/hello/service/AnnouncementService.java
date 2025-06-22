@@ -229,16 +229,26 @@ public class AnnouncementService {
     }
     
     /**
+     * 根据ID列表获取公告/活动
+     */
+    public List<Announcement> getAnnouncementsByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return announcementRepository.findByIdIn(ids);
+    }
+
+    /**
      * 生成内容摘要
      */
     private String generateSummary(String content) {
         if (content == null || content.trim().isEmpty()) {
             return "";
         }
-        
+
         // 移除HTML标签
         String plainText = content.replaceAll("<[^>]*>", "");
-        
+
         // 限制摘要长度为100个字符
         if (plainText.length() <= 100) {
             return plainText;
