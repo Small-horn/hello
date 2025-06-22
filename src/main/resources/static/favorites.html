@@ -164,21 +164,6 @@
 
     <!-- JavaScript文件 -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // 调试信息
-        console.log('favorites.html 开始加载JavaScript文件');
-        console.log('当前页面URL:', window.location.href);
-        console.log('当前页面路径:', window.location.pathname);
-
-        // 监听页面跳转
-        let originalLocation = window.location.href;
-        setInterval(function() {
-            if (window.location.href !== originalLocation) {
-                console.log('页面发生跳转:', originalLocation, '->', window.location.href);
-                originalLocation = window.location.href;
-            }
-        }, 100);
-    </script>
     <script src="js/auth.js"></script>
     <script src="js/auth-guard.js"></script>
     <script src="js/script.js"></script>
