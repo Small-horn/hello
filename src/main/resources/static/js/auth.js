@@ -8,14 +8,21 @@ $(document).ready(function() {
     init();
     
     function init() {
-        // 检查是否已登录
-        checkAuthStatus();
-        
+        // 只在登录页面检查是否已登录
+        if (isLoginPage()) {
+            checkAuthStatus();
+        }
+
         // 绑定事件
         bindEvents();
-        
+
         // 初始化密码显示/隐藏功能
         initPasswordToggle();
+    }
+
+    function isLoginPage() {
+        const currentPage = window.location.pathname;
+        return currentPage.endsWith('index.html') || currentPage === '/' || currentPage.endsWith('/');
     }
     
     function bindEvents() {

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收藏页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>收藏页面测试</h1>
+        <p>此页面用于测试收藏页面的认证和初始化流程</p>
+        
+        <div class="test-section">
+            <h3>1. 页面加载状态</h3>
+            <div id="load-status" class="result">正在加载...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. 认证状态检查</h3>
+            <div id="auth-status" class="result">未检查</div>
+            <button onclick="checkAuth()" class="btn">检查认证状态</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. 用户信息</h3>
+            <div id="user-info" class="result">未获取</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. 页面跳转测试</h3>
+            <button onclick="testFavoritesPage()" class="btn">测试收藏页面</button>
+            <button onclick="testDashboard()" class="btn">测试首页</button>
+            <div id="navigation-result" class="result">等待测试</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. 登录测试</h3>
+            <input type="text" id="test-username" placeholder="用户名" value="admin">
+            <input type="password" id="test-password" placeholder="密码" value="123">
+            <button onclick="testLogin()" class="btn">测试登录</button>
+            <div id="login-result" class="result">等待测试</div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentUser = null;
+        
+        $(document).ready(function() {
+            $('#load-status').html('<span class="success">页面加载完成</span>');
+            console.log('测试页面加载完成');
+            
+            // 自动检查认证状态
+            setTimeout(checkAuth, 500);
+        });
+        
+        function checkAuth() {
+            $('#auth-status').html('正在检查...');
+            
+            $.ajax({
+                url: '/api/auth/current',
+                method: 'GET',
+                success: function(response) {
+                    console.log('认证检查结果:', response);
+                    if (response.success && response.authenticated && response.user) {
+                        currentUser = response.user;
+                        $('#auth-status').html('<span class="success">已登录</span>');
+                        $('#user-info').html(`
+                            <span class="success">
+                                用户名: ${currentUser.username}<br>
+                                角色: ${currentUser.role}<br>
+                                真实姓名: ${currentUser.realName || '未设置'}
+                            </span>
+                        `);
+                    } else {
+                        $('#auth-status').html('<span class="warning">未登录</span>');
+                        $('#user-info').html('<span class="warning">请先登录</span>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('认证检查失败:', error);
+                    $('#auth-status').html('<span class="error">检查失败: ' + error + '</span>');
+                    $('#user-info').html('<span class="error">无法获取用户信息</span>');
+                }
+            });
+        }
+        
+        function testLogin() {
+            const username = $('#test-username').val();
+            const password = $('#test-password').val();
+            
+            if (!username || !password) {
+                $('#login-result').html('<span class="error">请输入用户名和密码</span>');
+                return;
+            }
+            
+            $('#login-result').html('正在登录...');
+            
+            $.ajax({
+                url: '/api/auth/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+                success: function(response) {
+                    console.log('登录结果:', response);
+                    if (response.success) {
+                        $('#login-result').html('<span class="success">登录成功</span>');
+                        setTimeout(checkAuth, 500);
+                    } else {
+                        $('#login-result').html('<span class="error">登录失败: ' + (response.message || '未知错误') + '</span>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('登录失败:', error);
+                    $('#login-result').html('<span class="error">登录失败: ' + error + '</span>');
+                }
+            });
+        }
+        
+        function testFavoritesPage() {
+            if (!currentUser) {
+                $('#navigation-result').html('<span class="error">请先登录</span>');
+                return;
+            }
+            
+            $('#navigation-result').html('正在跳转到收藏页面...');
+            setTimeout(function() {
+                window.location.href = 'favorites.html';
+            }, 1000);
+        }
+        
+        function testDashboard() {
+            $('#navigation-result').html('正在跳转到首页...');
+            setTimeout(function() {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

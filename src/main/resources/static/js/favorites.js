@@ -13,36 +13,17 @@ $(document).ready(function() {
 
     console.log('favorites.js 开始加载');
 
-    // 简化的初始化方法
-    function initializePage() {
-        console.log('开始初始化收藏页面...');
-
-        // 检查用户登录状态
-        $.ajax({
-            url: '/api/auth/current',
-            method: 'GET',
-            success: function(response) {
-                console.log('用户状态检查结果:', response);
-                if (response.success && response.authenticated && response.user) {
-                    currentUser = response.user;
-                    console.log('用户已登录:', currentUser.username);
-                    init();
-                } else {
-                    console.log('用户未登录，跳转到登录页面');
-                    alert('请先登录后再访问收藏页面');
-                    window.location.href = 'index.html';
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('检查用户状态失败:', error);
-                alert('检查登录状态失败，请重新登录');
-                window.location.href = 'index.html';
-            }
-        });
-    }
-
-    // 页面加载完成后立即初始化
-    initializePage();
+    // 等待权限检查完成后初始化
+    $(document).on('pageInitialized', function(event, user) {
+        console.log('收到页面初始化事件，用户:', user);
+        if (user) {
+            currentUser = user;
+            console.log('用户已登录:', currentUser.username);
+            init();
+        } else {
+            console.log('用户未登录，页面应该已经被重定向');
+        }
+    });
 
     function init() {
         console.log('初始化收藏页面，当前用户:', currentUser);

@@ -38,37 +38,50 @@ $(document).ready(function() {
     }
     
     function checkAuthentication(pageConfig) {
+        console.log('auth-guard: 开始认证检查，页面配置:', pageConfig);
+
         $.ajax({
             url: '/api/auth/current',
             method: 'GET',
             success: function(response) {
+                console.log('auth-guard: 认证检查响应:', response);
+
                 if (response.success && response.authenticated) {
                     const user = response.user;
-                    
+                    console.log('auth-guard: 用户已登录:', user.username, '角色:', user.role);
+
                     // 检查角色权限
                     if (pageConfig.roles.includes(user.role)) {
+                        console.log('auth-guard: 用户有权限访问页面，初始化页面');
                         // 有权限，初始化页面
                         initializePage(user);
                     } else {
+                        console.log('auth-guard: 用户无权限访问页面，显示拒绝页面');
                         // 无权限，显示错误页面
                         showAccessDenied();
                     }
                 } else {
+                    console.log('auth-guard: 用户未登录');
                     // 未登录
                     if (pageConfig.requireAuth) {
+                        console.log('auth-guard: 页面需要登录，跳转到登录页');
                         // 需要登录，跳转到登录页
                         redirectToLogin();
                     } else {
+                        console.log('auth-guard: 页面不需要登录，以游客身份初始化');
                         // 不需要登录，以游客身份初始化页面
                         initializePage(null);
                     }
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.log('auth-guard: 认证检查失败:', error);
                 // 检查失败
                 if (pageConfig.requireAuth) {
+                    console.log('auth-guard: 页面需要登录，跳转到登录页');
                     redirectToLogin();
                 } else {
+                    console.log('auth-guard: 页面不需要登录，以游客身份初始化');
                     initializePage(null);
                 }
             }
@@ -259,8 +272,12 @@ $(document).ready(function() {
     }
     
     function redirectToLogin() {
+        console.log('auth-guard: 执行跳转到登录页面');
+        console.log('auth-guard: 当前页面URL:', window.location.href);
         // 保存当前页面URL，登录后可以跳转回来
         sessionStorage.setItem('redirectUrl', window.location.href);
+        console.log('auth-guard: 已保存重定向URL到sessionStorage');
+        console.log('auth-guard: 即将跳转到 index.html');
         window.location.href = 'index.html';
     }
     
