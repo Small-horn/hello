@@ -13,7 +13,7 @@
 
 /* 详情头部 */
 .detail-header {
-    background: linear-gradient(135deg, var(--primary-color), #4f46e5);
+    background: linear-gradient(135deg, rgb(0, 200, 255), rgb(79, 70, 229));
     color: white;
     padding: 2rem;
     position: relative;
@@ -1034,5 +1034,145 @@
     .action-btn {
         font-size: 0.75rem;
         padding: 0.35rem 0.7rem;
+    }
+}
+
+/* 编辑评论模态框样式 */
+.edit-comment-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.edit-comment-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.edit-comment-form .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+.edit-comment-form .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* 删除确认模态框样式 */
+#delete-comment-modal .modal-body {
+    text-align: center;
+    padding: 2rem 1.5rem;
+}
+
+#delete-comment-modal .modal-body p {
+    font-size: 1rem;
+    color: var(--dark-color);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* 模态框按钮样式 */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+.modal-footer .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+
+.modal-footer .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.modal-footer .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.modal-footer .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.modal-footer .btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* 评论操作按钮样式增强 */
+.comment-actions .edit-comment-btn,
+.comment-actions .delete-comment-btn,
+.comment-actions .edit-reply-btn,
+.comment-actions .delete-reply-btn {
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.comment-actions .edit-comment-btn:hover,
+.comment-actions .edit-reply-btn:hover {
+    color: var(--primary-color);
+}
+
+.comment-actions .delete-comment-btn:hover,
+.comment-actions .delete-reply-btn:hover {
+    color: #dc3545;
+}
+
+/* 当前用户评论标识 */
+.comment-username.current-user {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.user-badge {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+/* 编辑和删除模态框的响应式样式 */
+@media (max-width: 768px) {
+    .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    .edit-comment-form .form-control {
+        font-size: 16px; /* 防止iOS缩放 */
     }
 }

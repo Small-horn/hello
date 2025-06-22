@@ -725,6 +725,30 @@ $(document).ready(function() {
             const username = $(this).data('username');
             showReplyModal(commentId, username);
         });
+
+        // 编辑评论
+        $('.edit-comment-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            showEditCommentModal(commentId);
+        });
+
+        // 删除评论
+        $('.delete-comment-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            showDeleteCommentConfirm(commentId);
+        });
+
+        // 编辑回复
+        $('.edit-reply-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            showEditCommentModal(commentId, true);
+        });
+
+        // 删除回复
+        $('.delete-reply-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            showDeleteCommentConfirm(commentId, true);
+        });
     }
 
     // 加载评论点赞状态
@@ -1113,5 +1137,260 @@ $(document).ready(function() {
         } else {
             commentUserName.text('请先登录后发表评论');
         }
+    }
+
+    // 显示编辑评论模态框
+    function showEditCommentModal(commentId, isReply = false) {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        // 获取评论内容
+        const commentElement = isReply ?
+            $(`.reply-item[data-comment-id="${commentId}"]`) :
+            $(`.comment-item[data-comment-id="${commentId}"]`);
+
+        if (commentElement.length === 0) {
+            showMessage('找不到评论', 'error');
+            return;
+        }
+
+        const currentContent = commentElement.find('.comment-content').text();
+
+        // 创建编辑模态框HTML
+        const editModalHtml = `
+            <div id="edit-comment-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>编辑${isReply ? '回复' : '评论'}</h3>
+                        <span class="modal-close">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="edit-comment-form">
+                            <div class="form-group">
+                                <label>内容：</label>
+                                <textarea id="edit-comment-input" class="form-control" rows="4" placeholder="请输入${isReply ? '回复' : '评论'}内容...">${escapeHtml(currentContent)}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancel-edit-comment-btn">取消</button>
+                        <button type="button" class="btn btn-primary" id="save-edit-comment-btn" data-comment-id="${commentId}" data-is-reply="${isReply}">保存</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 移除已存在的编辑模态框
+        $('#edit-comment-modal').remove();
+
+        // 添加到页面
+        $('body').append(editModalHtml);
+
+        // 显示模态框
+        $('#edit-comment-modal').show();
+
+        // 聚焦到输入框
+        $('#edit-comment-input').focus();
+
+        // 绑定事件
+        bindEditCommentEvents();
+    }
+
+    // 绑定编辑评论事件
+    function bindEditCommentEvents() {
+        // 取消编辑
+        $('#cancel-edit-comment-btn').off('click').on('click', function() {
+            closeEditCommentModal();
+        });
+
+        // 保存编辑
+        $('#save-edit-comment-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            const isReply = $(this).data('is-reply');
+            saveEditComment(commentId, isReply);
+        });
+
+        // 点击模态框背景关闭
+        $('#edit-comment-modal').off('click').on('click', function(e) {
+            if (e.target === this) {
+                closeEditCommentModal();
+            }
+        });
+
+        // 模态框关闭按钮
+        $('#edit-comment-modal .modal-close').off('click').on('click', function() {
+            closeEditCommentModal();
+        });
+    }
+
+    // 关闭编辑评论模态框
+    function closeEditCommentModal() {
+        $('#edit-comment-modal').hide().remove();
+    }
+
+    // 保存编辑的评论
+    function saveEditComment(commentId, isReply) {
+        const content = $('#edit-comment-input').val().trim();
+
+        if (!content) {
+            showMessage('请输入内容', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: `/api/comments/${commentId}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                content: content,
+                userId: currentUser.id
+            }),
+            success: function(updatedComment) {
+                closeEditCommentModal();
+                showMessage('编辑成功', 'success');
+
+                // 更新页面上的评论内容
+                const commentElement = isReply ?
+                    $(`.reply-item[data-comment-id="${commentId}"]`) :
+                    $(`.comment-item[data-comment-id="${commentId}"]`);
+
+                commentElement.find('.comment-content').text(content);
+
+                // 可以选择重新加载评论列表以确保数据一致性
+                // loadComments();
+            },
+            error: function(xhr, status, error) {
+                console.error('编辑评论失败:', error);
+                let errorMessage = '编辑失败，请稍后重试';
+
+                if (xhr.status === 400) {
+                    errorMessage = '请求参数错误';
+                } else if (xhr.status === 401) {
+                    errorMessage = '无权限编辑此评论';
+                } else if (xhr.status === 404) {
+                    errorMessage = '评论不存在';
+                }
+
+                showMessage(errorMessage, 'error');
+            }
+        });
+    }
+
+    // 显示删除评论确认对话框
+    function showDeleteCommentConfirm(commentId, isReply = false) {
+        if (!currentUser) {
+            showMessage('请先登录', 'warning');
+            return;
+        }
+
+        // 创建确认对话框HTML
+        const confirmModalHtml = `
+            <div id="delete-comment-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>确认删除</h3>
+                        <span class="modal-close">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <p>确定要删除这条${isReply ? '回复' : '评论'}吗？删除后无法恢复。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancel-delete-comment-btn">取消</button>
+                        <button type="button" class="btn btn-danger" id="confirm-delete-comment-btn" data-comment-id="${commentId}" data-is-reply="${isReply}">确认删除</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 移除已存在的确认对话框
+        $('#delete-comment-modal').remove();
+
+        // 添加到页面
+        $('body').append(confirmModalHtml);
+
+        // 显示模态框
+        $('#delete-comment-modal').show();
+
+        // 绑定事件
+        bindDeleteCommentEvents();
+    }
+
+    // 绑定删除评论事件
+    function bindDeleteCommentEvents() {
+        // 取消删除
+        $('#cancel-delete-comment-btn').off('click').on('click', function() {
+            closeDeleteCommentModal();
+        });
+
+        // 确认删除
+        $('#confirm-delete-comment-btn').off('click').on('click', function() {
+            const commentId = $(this).data('comment-id');
+            const isReply = $(this).data('is-reply');
+            deleteComment(commentId, isReply);
+        });
+
+        // 点击模态框背景关闭
+        $('#delete-comment-modal').off('click').on('click', function(e) {
+            if (e.target === this) {
+                closeDeleteCommentModal();
+            }
+        });
+
+        // 模态框关闭按钮
+        $('#delete-comment-modal .modal-close').off('click').on('click', function() {
+            closeDeleteCommentModal();
+        });
+    }
+
+    // 关闭删除评论模态框
+    function closeDeleteCommentModal() {
+        $('#delete-comment-modal').hide().remove();
+    }
+
+    // 删除评论
+    function deleteComment(commentId, isReply) {
+        $.ajax({
+            url: `/api/comments/${commentId}?userId=${currentUser.id}`,
+            method: 'DELETE',
+            success: function() {
+                closeDeleteCommentModal();
+                showMessage('删除成功', 'success');
+
+                // 从页面移除评论元素
+                const commentElement = isReply ?
+                    $(`.reply-item[data-comment-id="${commentId}"]`) :
+                    $(`.comment-item[data-comment-id="${commentId}"]`);
+
+                commentElement.fadeOut(300, function() {
+                    commentElement.remove();
+                });
+
+                // 更新评论数
+                if (announcementData) {
+                    announcementData.commentCount = Math.max(0, (announcementData.commentCount || 0) - 1);
+                    $('#announcement-comments').text(announcementData.commentCount);
+                    $('#total-comments').text(announcementData.commentCount);
+                }
+
+                // 可以选择重新加载评论列表以确保数据一致性
+                // loadComments();
+            },
+            error: function(xhr, status, error) {
+                console.error('删除评论失败:', error);
+                let errorMessage = '删除失败，请稍后重试';
+
+                if (xhr.status === 400) {
+                    errorMessage = '请求参数错误';
+                } else if (xhr.status === 401) {
+                    errorMessage = '无权限删除此评论';
+                } else if (xhr.status === 404) {
+                    errorMessage = '评论不存在';
+                }
+
+                showMessage(errorMessage, 'error');
+            }
+        });
     }
 });
