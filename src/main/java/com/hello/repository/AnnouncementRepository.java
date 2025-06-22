@@ -130,4 +130,17 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     Page<Announcement> findByFilters(@Param("status") String status,
                                    @Param("type") String type,
                                    Pageable pageable);
+
+    /**
+     * 根据状态、类型和发布者筛选公告/活动
+     */
+    @Query("SELECT a FROM Announcement a WHERE " +
+           "(:status IS NULL OR :status = '' OR CAST(a.status AS string) = :status) AND " +
+           "(:type IS NULL OR :type = '' OR CAST(a.type AS string) = :type) AND " +
+           "(:publisher IS NULL OR :publisher = '' OR a.publisher = :publisher) " +
+           "ORDER BY a.publishTime DESC")
+    Page<Announcement> findByComplexFilters(@Param("status") String status,
+                                          @Param("type") String type,
+                                          @Param("publisher") String publisher,
+                                          Pageable pageable);
 }

@@ -35,49 +35,32 @@ public class AnnouncementService {
     /**
      * 获取所有公告/活动（分页，支持筛选）
      */
-    public Page<Announcement> getAllAnnouncements(int page, int size, String status, String type) {
+    public Page<Announcement> getAllAnnouncements(int page, int size, String status, String type, String publisher) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "publishTime"));
 
         // 如果没有筛选条件，返回所有数据
-        if ((status == null || status.trim().isEmpty()) && (type == null || type.trim().isEmpty())) {
+        if ((status == null || status.trim().isEmpty()) &&
+            (type == null || type.trim().isEmpty()) &&
+            (publisher == null || publisher.trim().isEmpty())) {
             return announcementRepository.findAll(pageable);
         }
 
-        // 处理单独的筛选条件
-        if (status != null && !status.trim().isEmpty() && (type == null || type.trim().isEmpty())) {
-            try {
-                Announcement.AnnouncementStatus statusEnum = Announcement.AnnouncementStatus.valueOf(status.toUpperCase());
-                return announcementRepository.findByStatus(statusEnum, pageable);
-            } catch (IllegalArgumentException e) {
-                // 如果状态值无效，返回空结果
-                return Page.empty(pageable);
-            }
+        // 如果只有发布者筛选
+        if ((status == null || status.trim().isEmpty()) &&
+            (type == null || type.trim().isEmpty()) &&
+            (publisher != null && !publisher.trim().isEmpty())) {
+            return announcementRepository.findByPublisher(publisher, pageable);
         }
 
-        if (type != null && !type.trim().isEmpty() && (status == null || status.trim().isEmpty())) {
-            try {
-                Announcement.AnnouncementType typeEnum = Announcement.AnnouncementType.valueOf(type.toUpperCase());
-                return announcementRepository.findByType(typeEnum, pageable);
-            } catch (IllegalArgumentException e) {
-                // 如果类型值无效，返回空结果
-                return Page.empty(pageable);
-            }
-        }
+        // 使用复合查询方法处理多条件筛选
+        return announcementRepository.findByComplexFilters(status, type, publisher, pageable);
+    }
 
-        // 处理同时有状态和类型的筛选
-        if (status != null && !status.trim().isEmpty() && type != null && !type.trim().isEmpty()) {
-            try {
-                Announcement.AnnouncementStatus statusEnum = Announcement.AnnouncementStatus.valueOf(status.toUpperCase());
-                Announcement.AnnouncementType typeEnum = Announcement.AnnouncementType.valueOf(type.toUpperCase());
-                return announcementRepository.findByTypeAndStatus(typeEnum, statusEnum, pageable);
-            } catch (IllegalArgumentException e) {
-                // 如果枚举值无效，返回空结果
-                return Page.empty(pageable);
-            }
-        }
-
-        // 默认返回所有数据
-        return announcementRepository.findAll(pageable);
+    /**
+     * 获取所有公告/活动（分页，支持筛选）- 保持向后兼容
+     */
+    public Page<Announcement> getAllAnnouncements(int page, int size, String status, String type) {
+        return getAllAnnouncements(page, size, status, type, null);
     }
     
     /**

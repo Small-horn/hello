@@ -24,16 +24,17 @@ public class AnnouncementController {
     
     /**
      * 获取所有公告/活动（分页，支持筛选）
-     * GET /api/announcements?page=0&size=10&status=PUBLISHED&type=ANNOUNCEMENT
+     * GET /api/announcements?page=0&size=10&status=PUBLISHED&type=ANNOUNCEMENT&publisher=username
      */
     @GetMapping
     public ResponseEntity<Page<Announcement>> getAllAnnouncements(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String type) {
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String publisher) {
         try {
-            Page<Announcement> announcements = announcementService.getAllAnnouncements(page, size, status, type);
+            Page<Announcement> announcements = announcementService.getAllAnnouncements(page, size, status, type, publisher);
             return ResponseEntity.ok(announcements);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
