@@ -23,15 +23,17 @@ public class AnnouncementController {
     private AnnouncementService announcementService;
     
     /**
-     * 获取所有公告/活动（分页）
-     * GET /api/announcements?page=0&size=10
+     * 获取所有公告/活动（分页，支持筛选）
+     * GET /api/announcements?page=0&size=10&status=PUBLISHED&type=ANNOUNCEMENT
      */
     @GetMapping
     public ResponseEntity<Page<Announcement>> getAllAnnouncements(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String type) {
         try {
-            Page<Announcement> announcements = announcementService.getAllAnnouncements(page, size);
+            Page<Announcement> announcements = announcementService.getAllAnnouncements(page, size, status, type);
             return ResponseEntity.ok(announcements);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

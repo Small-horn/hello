@@ -8,19 +8,144 @@ $(document).ready(function() {
     let currentKeyword = '';
     let quillEditor = null;
     let editingId = null;
-    
-    // 初始化页面
-    init();
-    
-    function init() {
+    let isInitialized = false;
+
+    console.log('公告管理页面开始加载...');
+
+    // 等待DOM完全加载后再检查权限
+    setTimeout(() => {
+        console.log('开始权限检查和初始化...');
+        checkPermissionAndInit();
+    }, 500);
+
+    function checkPermissionAndInit() {
+        console.log('开始权限检查...');
+
+        $.ajax({
+            url: '/api/auth/current',
+            method: 'GET',
+            timeout: 5000,
+            success: function(response) {
+                console.log('权限检查响应:', response);
+
+                if (response.success && response.authenticated) {
+                    const user = response.user;
+                    console.log('用户已登录:', user.username, '角色:', user.role);
+
+                    if (user.role === 'ADMIN' || user.role === 'TEACHER') {
+                        // 有权限，初始化页面
+                        console.log('用户有权限，开始初始化页面');
+                        init(user);
+                    } else {
+                        // 无权限，但仍然初始化页面（只是显示权限不足信息）
+                        console.log('用户权限不足，但仍初始化页面');
+                        init(user);
+                        showMessage('您的权限不足，只能查看数据', 'warning');
+                    }
+                } else {
+                    // 未登录，但仍然尝试初始化页面
+                    console.log('用户未登录，但仍尝试初始化页面');
+                    init(null);
+                    showMessage('您未登录，功能受限', 'warning');
+                }
+            },
+            error: function(xhr, status, error) {
+                // 检查失败，但仍然尝试初始化页面
+                console.log('权限检查失败，但仍尝试初始化页面:', error);
+                init(null);
+                showMessage('权限检查失败，但仍可查看数据', 'warning');
+            }
+        });
+    }
+
+    function init(user) {
+        if (isInitialized) return;
+        isInitialized = true;
+
+        console.log('开始初始化页面，用户:', user);
+
+        // 检查必要的DOM元素
+        const tbody = $('#announcements-tbody');
+        const table = $('#announcements-table');
+        const loading = $('#loading');
+
+        console.log('DOM元素检查:');
+        console.log('- tbody:', tbody.length);
+        console.log('- table:', table.length);
+        console.log('- loading:', loading.length);
+
+        if (tbody.length === 0) {
+            console.error('找不到表格tbody元素，初始化失败');
+            showMessage('页面初始化失败：找不到表格元素', 'error');
+            return;
+        }
+
         // 初始化富文本编辑器
-        initQuillEditor();
-        
+        try {
+            initQuillEditor();
+        } catch (e) {
+            console.warn('富文本编辑器初始化失败:', e);
+        }
+
         // 绑定事件
         bindEvents();
-        
-        // 加载数据
+
+        // 直接加载数据，不添加测试数据
+        console.log('开始加载公告数据...');
         loadAnnouncements();
+    }
+
+    // 添加测试数据函数
+    function addTestData() {
+        console.log('添加测试数据...');
+        const tbody = $('#announcements-tbody');
+
+        if (tbody.length === 0) {
+            console.error('找不到表格tbody元素');
+            return;
+        }
+
+        const testData = {
+            content: [
+                {
+                    id: 999,
+                    title: '测试公告标题',
+                    type: 'ANNOUNCEMENT',
+                    status: 'PUBLISHED',
+                    publisher: '测试用户',
+                    publishTime: '2025-06-22T14:30:00',
+                    viewCount: 123,
+                    isImportant: true
+                }
+            ],
+            totalElements: 1,
+            totalPages: 1,
+            number: 0
+        };
+
+        console.log('渲染测试数据...');
+        renderAnnouncementsTable(testData);
+    }
+
+    function redirectToLogin() {
+        sessionStorage.setItem('redirectUrl', window.location.href);
+        window.location.href = 'index.html';
+    }
+
+    function showAccessDenied() {
+        $('main#content').html(`
+            <div class="access-denied" style="text-align: center; padding: 50px;">
+                <div class="access-denied-icon" style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <h1>访问被拒绝</h1>
+                <p>您没有权限访问公告管理功能，需要管理员或教师权限。</p>
+                <div class="access-denied-actions" style="margin-top: 30px;">
+                    <button onclick="history.back()" class="btn btn-secondary">返回上页</button>
+                    <button onclick="window.location.href='index.html'" class="btn btn-primary">重新登录</button>
+                </div>
+            </div>
+        `);
     }
     
     function initQuillEditor() {
@@ -81,55 +206,86 @@ $(document).ready(function() {
     }
     
     function loadAnnouncements() {
+        console.log('开始加载公告数据...');
         showLoading();
-        
+
         let url = '/api/announcements';
         let params = {
             page: currentPage,
             size: pageSize
         };
-        
+
+        // 添加筛选参数
+        if (currentStatus) {
+            params.status = currentStatus;
+            console.log('添加状态筛选:', currentStatus);
+        }
+        if (currentType) {
+            params.type = currentType;
+            console.log('添加类型筛选:', currentType);
+        }
+
+        // 如果有搜索关键词，使用搜索接口
         if (currentKeyword) {
             url = '/api/announcements/search';
             params.keyword = currentKeyword;
+            // 搜索接口暂时不支持状态和类型筛选，所以清除这些参数
+            delete params.status;
+            delete params.type;
+            console.log('使用搜索接口，关键词:', currentKeyword);
         }
-        
+
+        console.log('请求URL:', url);
+        console.log('请求参数:', params);
+
         $.ajax({
             url: url,
             method: 'GET',
             data: params,
             success: function(data) {
+                console.log('数据加载成功:', data);
                 hideLoading();
                 renderAnnouncementsTable(data);
                 renderPagination(data);
             },
             error: function(xhr, status, error) {
+                console.error('数据加载失败:', error, xhr.responseText);
                 hideLoading();
                 showMessage('加载数据失败，请稍后重试', 'error');
-                console.error('加载数据失败:', error);
+                console.error('加载数据失败:', error, xhr.responseText);
             }
         });
     }
     
     function renderAnnouncementsTable(data) {
+        console.log('开始渲染公告表格，数据:', data);
+
         const tbody = $('#announcements-tbody');
         const announcements = data.content;
-        
+
+        console.log('表格tbody元素:', tbody.length);
+        console.log('公告数据数量:', announcements ? announcements.length : 0);
+
         if (!announcements || announcements.length === 0) {
+            console.log('没有数据，显示空状态');
             tbody.empty();
             $('#empty-state').show();
             $('.table-container').hide();
             return;
         }
-        
+
+        console.log('有数据，开始渲染表格');
         tbody.empty();
         $('#empty-state').hide();
         $('.table-container').show();
-        
-        announcements.forEach(function(announcement) {
+
+        announcements.forEach(function(announcement, index) {
+            console.log(`渲染第 ${index + 1} 条数据:`, announcement.title);
             const row = createTableRow(announcement);
             tbody.append(row);
         });
+
+        console.log('表格渲染完成');
     }
     
     function createTableRow(announcement) {
@@ -316,16 +472,23 @@ $(document).ready(function() {
     }
     
     function showMessage(message, type = 'info') {
+        // 优先使用全局的showMessage函数
+        if (typeof window.showMessage === 'function') {
+            window.showMessage(message, type);
+            return;
+        }
+
+        // 备用的本地消息显示
         const messageHtml = `
             <div class="message ${type}">
                 <i class="fas fa-${getMessageIcon(type)}"></i>
                 ${message}
             </div>
         `;
-        
+
         const messageElement = $(messageHtml);
         $('#message-container').append(messageElement);
-        
+
         setTimeout(function() {
             messageElement.fadeOut(function() {
                 messageElement.remove();

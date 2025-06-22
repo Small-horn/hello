@@ -587,7 +587,7 @@ img {
 }
 
 /* 分页样式 */
-.pagination-container {
+/* .pagination-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -626,7 +626,7 @@ img {
     margin: 0 1rem;
     color: var(--secondary-color);
     font-size: 0.9rem;
-}
+} */
 
 /* 公告页面响应式设计 */
 @media (max-width: 768px) {

@@ -31,6 +31,21 @@ public class AnnouncementService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "publishTime"));
         return announcementRepository.findAll(pageable);
     }
+
+    /**
+     * 获取所有公告/活动（分页，支持筛选）
+     */
+    public Page<Announcement> getAllAnnouncements(int page, int size, String status, String type) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "publishTime"));
+
+        // 如果没有筛选条件，返回所有数据
+        if ((status == null || status.trim().isEmpty()) && (type == null || type.trim().isEmpty())) {
+            return announcementRepository.findAll(pageable);
+        }
+
+        // 根据筛选条件查询
+        return announcementRepository.findByFilters(status, type, pageable);
+    }
     
     /**
      * 获取已发布的公告/活动（分页）

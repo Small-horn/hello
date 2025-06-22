@@ -119,4 +119,15 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      */
     @Query("SELECT a FROM Announcement a WHERE a.id IN :ids ORDER BY a.publishTime DESC")
     List<Announcement> findByIdIn(@Param("ids") List<Long> ids);
+
+    /**
+     * 根据状态和类型筛选公告/活动
+     */
+    @Query("SELECT a FROM Announcement a WHERE " +
+           "(:status IS NULL OR :status = '' OR a.status = :status) AND " +
+           "(:type IS NULL OR :type = '' OR a.type = :type) " +
+           "ORDER BY a.publishTime DESC")
+    Page<Announcement> findByFilters(@Param("status") String status,
+                                   @Param("type") String type,
+                                   Pageable pageable);
 }
