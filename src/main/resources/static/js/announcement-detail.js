@@ -173,7 +173,7 @@ $(document).ready(function() {
     
     function renderAnnouncementDetail(announcement) {
         // 设置页面标题
-        document.title = `${announcement.title} - 戴永辉`;
+        document.title = `${announcement.title} - 浪无双`;
         
         // 渲染公告类型
         const typeElement = $('#announcement-type');
