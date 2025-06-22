@@ -183,7 +183,7 @@ $(document).ready(function() {
             <tr data-id="${user.id}">
                 <td>
                     <div class="user-avatar-cell">
-                        <img src="${avatarPath}" alt="用户头像" class="user-avatar-small" onerror="this.src='images/avatar.jpg'">
+                        <img src="${avatarPath}" alt="用户头像" class="user-avatar-small" onerror="this.style.display='none'">
                     </div>
                 </td>
                 <td>

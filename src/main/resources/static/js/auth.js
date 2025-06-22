@@ -167,8 +167,6 @@ $(document).ready(function() {
                     if (currentUser && currentUser.id) {
                         const avatarNumber = ((currentUser.id - 1) % 17) + 1;
                         currentUser.avatarPath = `images/picture/${String(avatarNumber).padStart(6, '0')}.webp`;
-                    } else {
-                        currentUser.avatarPath = 'images/avatar.jpg';
                     }
 
                     // 保存用户信息到localStorage（如果选择记住我）

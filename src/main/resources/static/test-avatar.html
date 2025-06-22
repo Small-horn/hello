@@ -136,7 +136,7 @@
             </div>
             <div style="margin-top: 15px;">
                 <strong>测试头像：</strong>
-                <img id="test-avatar" src="images/avatar.jpg" alt="测试头像" style="width: 60px; height: 60px; border-radius: 50%; margin-left: 10px;" onerror="this.src='images/avatar.jpg'">
+                <img id="test-avatar" alt="测试头像" style="width: 60px; height: 60px; border-radius: 50%; margin-left: 10px;" onerror="this.style.display='none'">
             </div>
         </div>
 
@@ -345,6 +345,8 @@
             // 更新测试头像显示效果
             $('#test-avatar').attr('src', mockLoginResponse.avatarPath);
         }
+
+
     </script>
 </body>
 </html>

@@ -13,13 +13,13 @@ window.AvatarUtils = {
      */
     getUserAvatar: function(userId) {
         if (!userId) {
-            return 'images/avatar.jpg'; // 默认头像
+            return null; // 没有用户ID时返回null
         }
-        
+
         // 根据用户ID计算头像编号（1-17）
         const avatarNumber = ((userId - 1) % 17) + 1;
         const avatarPath = `images/picture/${String(avatarNumber).padStart(6, '0')}.webp`;
-        
+
         return avatarPath;
     },
 
@@ -84,25 +84,38 @@ window.AvatarUtils = {
     /**
      * 为侧边栏用户头像设置图片
      * 优先使用用户对象中预计算的头像路径，提高性能
+     * 只加载个性化头像，不使用默认头像
      * @param {object|number} userOrUserId - 用户对象或用户ID
      */
     updateSidebarAvatar: function(userOrUserId) {
+        const $avatar = $('#sidebar-avatar');
+
+        if ($avatar.length === 0) return;
+
         let avatarPath;
 
         if (typeof userOrUserId === 'object' && userOrUserId !== null) {
             // 如果传入的是用户对象，优先使用预计算的头像路径
             avatarPath = userOrUserId.avatarPath || this.getUserAvatar(userOrUserId.id);
-        } else {
+        } else if (userOrUserId) {
             // 如果传入的是用户ID，使用计算方法
             avatarPath = this.getUserAvatar(userOrUserId);
+        } else {
+            // 没有用户信息，隐藏头像
+            $avatar.hide();
+            return;
         }
 
-        const $element = $('#sidebar-avatar');
-        if ($element.length > 0) {
-            $element.attr('src', avatarPath);
-            $element.attr('onerror', "this.src='images/avatar.jpg'");
+        // 如果有头像路径，直接设置
+        if (avatarPath) {
+            $avatar.attr('src', avatarPath).show();
+        } else {
+            // 没有有效的头像路径，隐藏头像
+            $avatar.hide();
         }
     },
+
+
 
     /**
      * 为评论输入框头像设置图片
@@ -149,7 +162,33 @@ window.AvatarUtils = {
 $(document).ready(function() {
     // 初始化页面中的头像
     AvatarUtils.initPageAvatars();
-    
+
     // 预加载头像图片（可选，提高用户体验）
     AvatarUtils.preloadAvatars();
+
+    // 初始化侧边栏头像加载状态
+    AvatarUtils.initSidebarAvatar();
 });
+
+// 扩展AvatarUtils对象，添加初始化方法
+AvatarUtils.initSidebarAvatar = function() {
+    const $avatar = $('#sidebar-avatar');
+
+    if ($avatar.length > 0) {
+        // 尝试从sessionStorage获取当前用户信息
+        const userStr = sessionStorage.getItem('currentUser');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                // 直接更新头像，无需延迟
+                this.updateSidebarAvatar(user);
+            } catch (e) {
+                console.warn('解析用户信息失败:', e);
+                $avatar.hide();
+            }
+        } else {
+            // 没有用户信息，隐藏头像
+            $avatar.hide();
+        }
+    }
+};

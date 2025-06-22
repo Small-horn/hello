@@ -684,7 +684,7 @@ $(document).ready(function() {
             <div class="comment-item" data-comment-id="${comment.id}" data-user-id="${comment.userId}">
                 <div class="comment-header">
                     <div class="comment-user-info">
-                        <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.src='images/avatar.jpg'">
+                        <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.style.display='none'">
                         <span class="comment-username ${isCurrentUserComment ? 'current-user' : ''}">${escapeHtml(displayName)}</span>
                         ${isCurrentUserComment ? '<span class="user-badge">我</span>' : ''}
                     </div>
@@ -862,7 +862,7 @@ $(document).ready(function() {
             <div class="reply-item" data-comment-id="${reply.id}" data-user-id="${reply.userId}">
                 <div class="comment-header">
                     <div class="comment-user-info">
-                        <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.src='images/avatar.jpg'">
+                        <img src="${avatarPath}" alt="用户头像" class="comment-user-avatar" onerror="this.style.display='none'">
                         <span class="comment-username ${isCurrentUserReply ? 'current-user' : ''}">${escapeHtml(displayName)}</span>
                         ${isCurrentUserReply ? '<span class="user-badge">我</span>' : ''}
                     </div>
