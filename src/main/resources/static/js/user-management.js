@@ -16,6 +16,12 @@ $(document).ready(function() {
         console.log('初始化用户管理页面');
         window.pageInitialized = true;
 
+        // 获取当前用户信息并更新侧边栏头像
+        const currentUser = getCurrentUser();
+        if (typeof AvatarUtils !== 'undefined') {
+            AvatarUtils.updateSidebarAvatar(currentUser);
+        }
+
         // 确保表格容器可见
         $('.table-container').show();
         $('#loading').hide();
@@ -445,6 +451,11 @@ $(document).ready(function() {
     }
     
     // 工具函数
+    function getCurrentUser() {
+        const userStr = sessionStorage.getItem('currentUser');
+        return userStr ? JSON.parse(userStr) : null;
+    }
+
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');

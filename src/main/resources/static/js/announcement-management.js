@@ -52,9 +52,9 @@ $(document).ready(function() {
 
         console.log('开始初始化页面，用户:', user);
 
-        // 更新侧边栏头像
+        // 更新侧边栏头像（传入用户对象，使用预计算的头像路径）
         if (typeof AvatarUtils !== 'undefined') {
-            AvatarUtils.updateSidebarAvatar(user ? user.id : null);
+            AvatarUtils.updateSidebarAvatar(user);
         }
 
         // 检查必要的DOM元素

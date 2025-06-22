@@ -162,15 +162,23 @@ $(document).ready(function() {
                 
                 if (response.success) {
                     currentUser = response.user;
-                    
+
+                    // 计算并添加用户头像路径
+                    if (currentUser && currentUser.id) {
+                        const avatarNumber = ((currentUser.id - 1) % 17) + 1;
+                        currentUser.avatarPath = `images/picture/${String(avatarNumber).padStart(6, '0')}.webp`;
+                    } else {
+                        currentUser.avatarPath = 'images/avatar.jpg';
+                    }
+
                     // 保存用户信息到localStorage（如果选择记住我）
                     if (rememberMe) {
                         localStorage.setItem('rememberedUsername', username);
                     } else {
                         localStorage.removeItem('rememberedUsername');
                     }
-                    
-                    // 保存当前用户信息到sessionStorage
+
+                    // 保存当前用户信息到sessionStorage（包含头像路径）
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
                     showMessage('登录成功，正在跳转...', 'success');

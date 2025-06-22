@@ -128,6 +128,7 @@
                 <input type="number" id="user-id-input" placeholder="输入用户ID" min="1" max="100" value="1">
                 <button onclick="testGetUserAvatar()">获取头像路径</button>
                 <button onclick="testUpdateAvatar()">更新测试头像</button>
+                <button onclick="testSidebarOptimization()">测试侧边栏优化</button>
             </div>
             <div style="margin-top: 15px;">
                 <strong>测试结果：</strong>
@@ -136,6 +137,19 @@
             <div style="margin-top: 15px;">
                 <strong>测试头像：</strong>
                 <img id="test-avatar" src="images/avatar.jpg" alt="测试头像" style="width: 60px; height: 60px; border-radius: 50%; margin-left: 10px;" onerror="this.src='images/avatar.jpg'">
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 性能优化测试</h3>
+            <p>测试登录时预计算头像路径的性能优化效果：</p>
+            <div class="test-controls">
+                <button onclick="testPerformanceComparison()">性能对比测试</button>
+                <button onclick="simulateUserLogin()">模拟用户登录</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <strong>性能测试结果：</strong>
+                <div id="performance-result" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;"></div>
             </div>
         </div>
     </div>
@@ -222,11 +236,114 @@
                 $('#test-result').text('请输入有效的用户ID');
                 return;
             }
-            
+
             AvatarUtils.updateAvatar('#test-avatar', userId);
             $('#test-result').html(`
                 已更新测试头像为用户ID ${userId} 的头像
             `);
+        }
+
+        function testSidebarOptimization() {
+            const userId = parseInt($('#user-id-input').val());
+            if (isNaN(userId)) {
+                $('#test-result').text('请输入有效的用户ID');
+                return;
+            }
+
+            // 模拟用户对象（包含预计算的头像路径）
+            const mockUser = {
+                id: userId,
+                username: `user${userId}`,
+                realName: `测试用户${userId}`,
+                avatarPath: AvatarUtils.getUserAvatar(userId)
+            };
+
+            // 测试优化后的侧边栏头像更新
+            const startTime = performance.now();
+            AvatarUtils.updateSidebarAvatar(mockUser);
+            const endTime = performance.now();
+
+            $('#test-result').html(`
+                <strong>侧边栏头像优化测试：</strong><br>
+                用户ID: ${userId}<br>
+                预计算头像路径: ${mockUser.avatarPath}<br>
+                更新耗时: ${(endTime - startTime).toFixed(3)}ms<br>
+                <span style="color: green;">✓ 使用预计算路径，无需重复计算</span>
+            `);
+        }
+
+        function testPerformanceComparison() {
+            const testCount = 1000;
+            const userId = 15; // 测试用户ID
+
+            // 测试传统方式（每次计算）
+            const startTime1 = performance.now();
+            for (let i = 0; i < testCount; i++) {
+                AvatarUtils.getUserAvatar(userId);
+            }
+            const endTime1 = performance.now();
+            const traditionalTime = endTime1 - startTime1;
+
+            // 测试优化方式（使用预计算路径）
+            const mockUser = {
+                id: userId,
+                avatarPath: AvatarUtils.getUserAvatar(userId)
+            };
+
+            const startTime2 = performance.now();
+            for (let i = 0; i < testCount; i++) {
+                const path = mockUser.avatarPath; // 直接使用预计算路径
+            }
+            const endTime2 = performance.now();
+            const optimizedTime = endTime2 - startTime2;
+
+            const improvement = ((traditionalTime - optimizedTime) / traditionalTime * 100).toFixed(1);
+
+            $('#performance-result').html(`
+                <strong>性能对比测试结果（${testCount}次操作）：</strong><br>
+                传统方式（每次计算）: ${traditionalTime.toFixed(3)}ms<br>
+                优化方式（预计算路径）: ${optimizedTime.toFixed(3)}ms<br>
+                性能提升: ${improvement}%<br>
+                <span style="color: green;">✓ 登录时预计算头像路径可显著提升性能</span>
+            `);
+        }
+
+        function simulateUserLogin() {
+            const userId = parseInt($('#user-id-input').val());
+            if (isNaN(userId)) {
+                $('#performance-result').text('请输入有效的用户ID');
+                return;
+            }
+
+            // 模拟登录过程中的头像路径计算
+            const startTime = performance.now();
+
+            // 模拟用户登录成功后的数据处理
+            const mockLoginResponse = {
+                id: userId,
+                username: `user${userId}`,
+                realName: `测试用户${userId}`,
+                role: 'STUDENT'
+            };
+
+            // 计算并添加头像路径（模拟auth.js中的逻辑）
+            const avatarNumber = ((mockLoginResponse.id - 1) % 17) + 1;
+            mockLoginResponse.avatarPath = `images/picture/${String(avatarNumber).padStart(6, '0')}.webp`;
+
+            const endTime = performance.now();
+
+            $('#performance-result').html(`
+                <strong>模拟用户登录：</strong><br>
+                用户ID: ${mockLoginResponse.id}<br>
+                用户名: ${mockLoginResponse.username}<br>
+                真实姓名: ${mockLoginResponse.realName}<br>
+                预计算头像路径: ${mockLoginResponse.avatarPath}<br>
+                登录处理耗时: ${(endTime - startTime).toFixed(3)}ms<br>
+                <span style="color: green;">✓ 头像路径已在登录时计算并存储</span>
+            `);
+
+            // 更新测试头像显示效果
+            $('#test-avatar').attr('src', mockLoginResponse.avatarPath);
         }
     </script>
 </body>

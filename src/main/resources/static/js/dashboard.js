@@ -79,9 +79,9 @@ $(document).ready(function() {
 
             $('#login-count').text(user.loginCount || 0);
 
-            // 更新侧边栏头像
+            // 更新侧边栏头像（传入用户对象，使用预计算的头像路径）
             if (typeof AvatarUtils !== 'undefined') {
-                AvatarUtils.updateSidebarAvatar(user.id);
+                AvatarUtils.updateSidebarAvatar(user);
             }
         } else {
             $('.current-user-name').text('游客');

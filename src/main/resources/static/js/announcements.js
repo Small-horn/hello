@@ -29,9 +29,9 @@ $(document).ready(function() {
         currentUser = getCurrentUser();
         console.log('当前用户:', currentUser);
 
-        // 更新侧边栏头像
+        // 更新侧边栏头像（传入用户对象，使用预计算的头像路径）
         if (typeof AvatarUtils !== 'undefined') {
-            AvatarUtils.updateSidebarAvatar(currentUser ? currentUser.id : null);
+            AvatarUtils.updateSidebarAvatar(currentUser);
         }
 
         // 绑定事件

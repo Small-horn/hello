@@ -80,16 +80,21 @@ $(document).ready(function() {
         if (user) {
             sessionStorage.setItem('currentUser', JSON.stringify(user));
         }
-        
+
         // 更新导航栏
         updateNavigation(user);
-        
+
         // 更新用户信息显示
         updateUserDisplay(user);
-        
+
+        // 更新侧边栏头像（传入用户对象，使用预计算的头像路径）
+        if (typeof AvatarUtils !== 'undefined') {
+            AvatarUtils.updateSidebarAvatar(user);
+        }
+
         // 根据权限显示/隐藏功能
         updatePagePermissions(user);
-        
+
         // 触发页面初始化完成事件
         $(document).trigger('pageInitialized', [user]);
     }

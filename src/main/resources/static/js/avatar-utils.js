@@ -83,10 +83,25 @@ window.AvatarUtils = {
 
     /**
      * 为侧边栏用户头像设置图片
-     * @param {number} userId - 当前用户ID
+     * 优先使用用户对象中预计算的头像路径，提高性能
+     * @param {object|number} userOrUserId - 用户对象或用户ID
      */
-    updateSidebarAvatar: function(userId) {
-        this.updateAvatar('#sidebar-avatar', userId);
+    updateSidebarAvatar: function(userOrUserId) {
+        let avatarPath;
+
+        if (typeof userOrUserId === 'object' && userOrUserId !== null) {
+            // 如果传入的是用户对象，优先使用预计算的头像路径
+            avatarPath = userOrUserId.avatarPath || this.getUserAvatar(userOrUserId.id);
+        } else {
+            // 如果传入的是用户ID，使用计算方法
+            avatarPath = this.getUserAvatar(userOrUserId);
+        }
+
+        const $element = $('#sidebar-avatar');
+        if ($element.length > 0) {
+            $element.attr('src', avatarPath);
+            $element.attr('onerror', "this.src='images/avatar.jpg'");
+        }
     },
 
     /**
