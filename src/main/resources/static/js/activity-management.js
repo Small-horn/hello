@@ -17,18 +17,14 @@ $(document).ready(function() {
         currentUser = user;
 
         if (user) {
-            // 检查是否有发布活动的权限
-            if (user.role !== 'ADMIN' && user.role !== 'TEACHER') {
-                showMessage('只有管理员和教师可以发布活动', 'warning');
-                $('#add-activity-btn').hide();
-            }
-
+            // 所有登录用户都可以发布活动
+            showMessage(`欢迎 ${user.username}，您可以发布和管理自己的活动`, 'info');
             init(user);
         } else {
-            showMessage('未登录，请先登录', 'error');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
+            // 游客模式，只能查看公开活动
+            showMessage('您正在以游客身份浏览，只能查看已发布的活动', 'info');
+            $('#add-activity-btn').hide();
+            init(null);
         }
     });
 
@@ -57,6 +53,9 @@ $(document).ready(function() {
         // 绑定事件
         bindEvents(user);
 
+        // 根据用户权限调整界面
+        adjustUIForUserRole(user);
+
         // 加载活动数据
         console.log('开始加载活动数据...');
         loadActivities();
@@ -82,8 +81,8 @@ $(document).ready(function() {
         // 清除搜索
         $('#clear-search-btn').click(clearSearch);
 
-        // 编辑功能（仅管理员和教师可用）
-        if (user && (user.role === 'ADMIN' || user.role === 'TEACHER')) {
+        // 编辑功能（所有登录用户可用）
+        if (user) {
             console.log('绑定编辑功能事件');
 
             // 新建活动按钮
@@ -103,6 +102,24 @@ $(document).ready(function() {
             $('.modal').click(function(e) {
                 if (e.target === this) closeModal();
             });
+        }
+    }
+
+    function adjustUIForUserRole(user) {
+        if (!user) {
+            // 游客隐藏状态筛选器，因为只能看已发布的活动
+            $('#status-filter').closest('.filter-group').hide();
+
+            // 修改页面标题和描述
+            $('.page-title').text('校园活动浏览');
+            $('.page-description').text('浏览校园发布的活动信息');
+
+            // 隐藏统计中的草稿数据
+            $('#draft-activities').hide();
+        } else {
+            // 登录用户显示完整的管理界面
+            $('.page-title').text('我的活动管理');
+            $('.page-description').text('发布、编辑和管理您的校园活动信息');
         }
     }
 
@@ -130,13 +147,17 @@ $(document).ready(function() {
             type: 'ACTIVITY' // 只加载活动类型
         };
 
-        // 如果当前用户不是管理员，只加载自己发布的活动
-        if (currentUser && currentUser.role !== 'ADMIN') {
+        // 根据用户角色决定数据访问权限
+        if (!currentUser) {
+            // 游客只能看已发布的活动
+            params.status = 'PUBLISHED';
+        } else {
+            // 所有登录用户只能看自己发布的活动
             params.publisher = currentUser.username;
         }
 
-        // 添加筛选参数
-        if (currentStatus) {
+        // 添加筛选参数（登录用户可以筛选自己的活动状态）
+        if (currentStatus && currentUser) {
             params.status = currentStatus;
         }
 
@@ -251,6 +272,17 @@ $(document).ready(function() {
     }
 
     function getActionButtons(activity) {
+        // 如果用户没有登录，只显示查看按钮
+        if (!currentUser) {
+            return `
+                <button class="action-btn view" onclick="viewActivity(${activity.id})">
+                    <i class="fas fa-eye"></i> 查看
+                </button>
+            `;
+        }
+
+        // 登录用户可以管理自己发布的活动
+        // 由于数据加载时已经过滤了只显示自己的活动，这里的活动都是用户自己发布的
         return `
             <button class="action-btn edit" onclick="editActivity(${activity.id})">
                 <i class="fas fa-edit"></i> 编辑
@@ -272,6 +304,7 @@ $(document).ready(function() {
     // 导出函数供HTML调用
     window.showActivityModal = showActivityModal;
     window.editActivity = editActivity;
+    window.viewActivity = viewActivity;
     window.publishActivity = publishActivity;
     window.unpublishActivity = unpublishActivity;
     window.deleteActivity = deleteActivity;
@@ -478,6 +511,12 @@ $(document).ready(function() {
                 showMessage('获取活动数据失败', 'error');
             }
         });
+    }
+
+    function viewActivity(id) {
+        console.log('查看活动:', id);
+        // 跳转到活动详情页面
+        window.open(`announcement-detail.html?id=${id}`, '_blank');
     }
 
     function publishActivity(id) {
