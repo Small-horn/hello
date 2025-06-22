@@ -349,7 +349,14 @@ $(document).ready(function() {
             $('#user-password').attr('required', 'required').attr('placeholder', '请输入密码');
         }
         
-        $('#user-modal').show();
+        // 显示模态框并添加动画类
+        const modal = $('#user-modal');
+        modal.show().addClass('show');
+
+        // 聚焦到第一个输入框
+        setTimeout(() => {
+            $('#user-username').focus();
+        }, 100);
     }
     
     function handleFormSubmit(e) {
@@ -398,7 +405,13 @@ $(document).ready(function() {
     }
     
     function closeModal() {
-        $('.modal').hide();
+        const modal = $('.modal');
+        modal.removeClass('show');
+
+        // 延迟隐藏以播放关闭动画
+        setTimeout(() => {
+            modal.hide();
+        }, 300);
     }
     
     function showLoading() {
