@@ -6,6 +6,7 @@ $(document).ready(function() {
         'announcements.html': { requireAuth: false, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
         'announcement-detail.html': { requireAuth: false, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
         'favorites.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
+        'activity-management.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER'] },
         'announcement-management.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER'] },
         'user-management.html': { requireAuth: true, roles: ['ADMIN'] },
         'about.html': { requireAuth: true, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'GUEST'] },
@@ -111,7 +112,7 @@ $(document).ready(function() {
                 const link = $(this).find('a');
                 const href = link.attr('href');
                 
-                if (href && (href.includes('announcement-management') || href.includes('user-management'))) {
+                if (href && (href.includes('activity-management') || href.includes('announcement-management') || href.includes('user-management'))) {
                     $(this).hide();
                 }
             });
@@ -124,7 +125,14 @@ $(document).ready(function() {
             const href = link.attr('href');
             
             if (href) {
-                if (href.includes('announcement-management')) {
+                if (href.includes('activity-management')) {
+                    // 活动管理：管理员和教师可见
+                    if (user.role === 'ADMIN' || user.role === 'TEACHER') {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                } else if (href.includes('announcement-management')) {
                     // 公告管理：管理员和教师可见
                     if (user.role === 'ADMIN' || user.role === 'TEACHER') {
                         $(this).show();

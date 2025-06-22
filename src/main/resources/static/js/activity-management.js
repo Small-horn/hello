@@ -11,47 +11,26 @@ $(document).ready(function() {
 
     console.log('活动管理页面开始加载...');
 
-    // 等待DOM完全加载后再检查权限
-    setTimeout(() => {
-        console.log('开始权限检查和初始化...');
-        checkPermissionAndInit();
-    }, 500);
+    // 等待认证守卫初始化完成
+    $(document).on('pageInitialized', function(event, user) {
+        console.log('页面初始化完成，用户信息:', user);
+        currentUser = user;
 
-    function checkPermissionAndInit() {
-        console.log('开始权限检查...');
-
-        $.ajax({
-            url: '/api/auth/current',
-            method: 'GET',
-            timeout: 3000,
-            success: function(response) {
-                console.log('权限检查响应:', response);
-                currentUser = response.success && response.authenticated ? response.user : null;
-                init(currentUser);
-
-                if (!currentUser) {
-                    showMessage('未登录，请先登录', 'error');
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                    return;
-                }
-
-                // 检查是否有发布活动的权限
-                if (currentUser.role !== 'ADMIN' && currentUser.role !== 'TEACHER') {
-                    showMessage('只有管理员和教师可以发布活动', 'warning');
-                    $('#add-activity-btn').hide();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.log('权限检查失败:', error);
-                showMessage('权限检查失败，请重新登录', 'error');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+        if (user) {
+            // 检查是否有发布活动的权限
+            if (user.role !== 'ADMIN' && user.role !== 'TEACHER') {
+                showMessage('只有管理员和教师可以发布活动', 'warning');
+                $('#add-activity-btn').hide();
             }
-        });
-    }
+
+            init(user);
+        } else {
+            showMessage('未登录，请先登录', 'error');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+    });
 
     function init(user) {
         if (isInitialized) return;
